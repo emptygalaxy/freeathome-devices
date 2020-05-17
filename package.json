@@ -2,7 +2,8 @@
   "name": "freeathome-devices",
   "version": "1.0.1",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "prepare1": "npm run build",
     "clean": "rm -rf ./dist/* ",
