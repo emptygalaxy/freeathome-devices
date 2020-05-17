@@ -73,6 +73,11 @@ export class DeviceManager {
         }
     }
 
+    public getDevices():Device[]
+    {
+        return this.devices;
+    }
+
     public getDevice(serialNumber:string, channel:number):SubDevice|null
     {
         let l = this.allDevices.length;
