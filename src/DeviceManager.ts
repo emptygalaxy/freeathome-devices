@@ -7,16 +7,20 @@ import {BinarySensorDevice} from "./hardware/BinarySensorDevice";
 import {SchakelAktorDevice} from "./hardware/SchakelAktorDevice";
 import {SysAP} from "./hardware/SysAP";
 import {ClientConfiguration} from "freeathome-api";
+const EventEmitter = require("events");
 
-export class DeviceManager {
+export class DeviceManager extends EventEmitter
+{
+    private readonly connection:Connection;
 
-    private connection:Connection;
-
+    private hasDevices:boolean = false;
     private devices:Device[] = [];
     private allDevices:Device[] = [];
 
     constructor(config:ClientConfiguration)
     {
+        super();
+
         this.connection = new Connection(config);
 
         this.connection.on(ConnectionEvent.READY, ()=>{console.log('Ready')});
@@ -26,15 +30,12 @@ export class DeviceManager {
         this.connection.start();
     }
 
-    private handleDevices(devices:Devices)
-    {
-        for(let deviceSerial in devices)
-        {
-            let info:DeviceInfo = devices[deviceSerial];
-            let device:Device|undefined = this.createDevice(info.serialNumber, info.deviceId);
+    private handleDevices(devices:Devices) {
+        for (let deviceSerial in devices) {
+            let info: DeviceInfo = devices[deviceSerial];
+            let device: Device | undefined = this.createDevice(info.serialNumber, info.deviceId);
 
-            if(device != undefined)
-            {
+            if (device != undefined) {
                 // initial
                 device.handleState(info);
 
@@ -42,20 +43,20 @@ export class DeviceManager {
                 this.devices.push(device);
                 this.allDevices.push(device);
 
-                if(device instanceof HomeTouchPanel)
-                {
+                if (device instanceof HomeTouchPanel) {
                     let subDevices: Device[] = (device as HomeTouchPanel).getSubDevices();
                     subDevices.forEach((d: Device) => {
                         d.handleState(info);
                         this.allDevices.push(d);
                     });
                 }
-            }
-            else
-            {
+            } else {
                 console.log(info);
             }
         }
+
+        this.hasDevices = true;
+        this.emit(ConnectionEvent.DEVICES);
     }
 
     private handleUpdate(message:BroadcastMessage)
@@ -71,6 +72,13 @@ export class DeviceManager {
                 }
             });
         }
+
+        this.emit(ConnectionEvent.BROADCAST);
+    }
+
+    public hasDeviceList(): boolean
+    {
+        return this.hasDevices;
     }
 
     public getDevices():Device[]
