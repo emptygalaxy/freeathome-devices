@@ -1,0 +1,30 @@
+{
+  "name": "freeathome-devices",
+  "version": "1.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "prepare1": "npm run build",
+    "clean": "rm -rf ./dist/* ",
+    "build": "tsc",
+    "build-watch": "tsc -w",
+    "test": "node dist/test.js",
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emptygalaxy/freeathome-devices.git"
+  },
+  "author": "Nick Timman",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/emptygalaxy/freeathome-devices/issues"
+  },
+  "homepage": "https://github.com/emptygalaxy/freeathome-devices#readme",
+  "devDependencies": {
+    "@types/node": "^14.0.1"
+  },
+  "dependencies": {
+    "freeathome-api": "^1.1.0"
+  }
+}
