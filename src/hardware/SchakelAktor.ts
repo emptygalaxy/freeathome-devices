@@ -12,6 +12,9 @@ export enum SchakelAktorEvent
 export class SchakelAktor extends SubDevice
 {
     protected active:boolean = false;
+    private readonly datapoint:string = 'odp0000';
+    private readonly onValue:string = '1';
+    private readonly offValue:string = '0';
 
     constructor(connection:Connection, serialNumber:string, channel:number)
     {
@@ -23,26 +26,28 @@ export class SchakelAktor extends SubDevice
         // this.on(SchakelAktorEvent.TURNED_OFF, () => {console.log(this.displayName, 'SchakelAktor turned off')});
     }
 
-    public turnOn():void
+    public turnOn(): void
     {
         this.emit(SchakelAktorEvent.TURN_ON);
     }
 
-    protected turnedOn():void
+    protected turnedOn(): void
     {
         this.active = true;
         this.emit(SchakelAktorEvent.TURNED_ON);
+        this.changed();
     }
 
-    public turnOff():void
+    public turnOff(): void
     {
         this.emit(SchakelAktorEvent.TURN_OFF);
     }
 
-    protected turnedOff():void
+    protected turnedOff(): void
     {
         this.active = false;
         this.emit(SchakelAktorEvent.TURNED_OFF);
+        this.changed();
     }
 
     public isOn():boolean
@@ -50,22 +55,22 @@ export class SchakelAktor extends SubDevice
         return this.active;
     }
 
-    protected handleChannelState(datapoints:{[dp:string]: string})
+    protected handleChannelState(datapoints:{[dp:string]: string}): void
     {
-        if(datapoints.odp0000 == '1') {
+        if(datapoints[this.datapoint] == this.onValue) {
             this.active = true;
-        } else if(datapoints.odp0000 == '0') {
+        } else if(datapoints[this.datapoint] == this.offValue) {
             this.active = false;
         } else {
             console.log(this.serialNumber, this.channel.toString(16), 'unknown initial datapoint value', datapoints);
         }
     }
 
-    protected handleChannelUpdate(datapoints:{[dp:string]: string})
+    protected handleChannelUpdate(datapoints:{[dp:string]: string}): void
     {
-        if(datapoints.odp0000 == '1') {
+        if(datapoints[this.datapoint] == this.onValue) {
             this.turnedOn();
-        } else if(datapoints.odp0000 == '0') {
+        } else if(datapoints[this.datapoint] == this.offValue) {
             this.turnedOff();
         } else {
             console.log(this.serialNumber, this.channel, 'unknown datapoint value', datapoints);

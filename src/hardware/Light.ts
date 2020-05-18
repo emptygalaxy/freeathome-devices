@@ -28,6 +28,7 @@ export class Light extends SchakelAktor
     {
         this.active = true;
         this.emit(LightEvent.TURNED_ON);
+        this.changed();
     }
 
     public turnOff():void
@@ -39,5 +40,6 @@ export class Light extends SchakelAktor
     {
         this.active = false;
         this.emit(LightEvent.TURNED_OFF);
+        this.changed();
     }
 }

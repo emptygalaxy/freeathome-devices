@@ -8,11 +8,21 @@ export enum DoorOpenerEvent{
     CLOSED
 }
 
+/**
+ * @event DeviceEvent.CHANGE
+ * @event DoorOpenerEvent.OPEN
+ * @event DoorOpenerEvent.OPENED
+ * @event DoorOpenerEvent.CLOSE
+ * @event DoorOpenerEvent.CLOSED
+ */
 export class DoorOpener extends SubDevice
 {
-    public isOpen: boolean = false;
+    public _isOpening: boolean = false;
+    public _isOpen: boolean = false;
+    private readonly sensorDataPoint: string = 'odp0000';
     private readonly actuatorDataPoint: string = 'idp0000';
-    private readonly actuatorValue: string = '1';
+    private readonly openValue: string = '1';
+    private readonly closeValue: string = '0';
 
     constructor(connection:Connection, serialNumber:string, channel:number)
     {
@@ -26,35 +36,53 @@ export class DoorOpener extends SubDevice
 
     public open()
     {
+        this._isOpening = true;
         this.emit(DoorOpenerEvent.OPEN);
-        this.setDatapoint(this.channel, this.actuatorDataPoint, this.actuatorValue);
+        this.changed();
+
+        this.setDatapoint(this.channel, this.actuatorDataPoint, this.openValue);
     }
 
     private opened()
     {
-        this.isOpen = true;
+        this._isOpening = false;
+        this._isOpen = true;
+
         this.emit(DoorOpenerEvent.OPENED);
+        this.changed();
     }
 
-
-    // public close()
-    // {
-    //     this.emit(DoorOpenerEvent.CLOSE);
-    //     this.setDatapoint(this.actuatorChannel, this.actuatorDataPoint, this.actuatorValue);
-    // }
+    public close()
+    {
+        this.emit(DoorOpenerEvent.CLOSE);
+        this.setDatapoint(this.actuatorChannel, this.actuatorDataPoint, this.closeValue);
+    }
 
     private closed()
     {
-        this.isOpen = false;
+        this._isOpening = false;
+        this._isOpen = false;
         this.emit(DoorOpenerEvent.CLOSED);
+        this.changed();
     }
+
+    public isOpening(): boolean
+    {
+        return this._isOpening;
+    }
+
+    public isOpen(): boolean
+    {
+        return this._isOpen;
+    }
+
 
     handleChannelState(datapoints:{[dp:string]: string})
     {
-        if(datapoints.odp0000 == '1') {
-            this.isOpen = true;
-        } else if(datapoints.odp0000 == '0') {
-            this.isOpen = false;
+        if(datapoints[this.sensorDataPoint] == this.openValue) {
+            this._isOpen = true;
+        } else if(datapoints[this.sensorDataPoint] == this.closeValue) {
+            this._isOpen = false;
         } else {
             console.log(this.serialNumber, this.channel.toString(16), 'unknown initial datapoint value', datapoints);
         }
@@ -62,13 +90,15 @@ export class DoorOpener extends SubDevice
 
     handleChannelUpdate(datapoints:{[dp:string]: string})
     {
-        if(datapoints.odp0000 == '1') {
+        if(datapoints[this.sensorDataPoint] == this.openValue) {
             this.opened();
-        } else if(datapoints.idp0000 == '1') {
+        } else if(datapoints[this.actuatorDataPoint] == this.openValue) {
+            this._isOpening = true;
             this.emit(DoorOpenerEvent.OPEN);
-        } else if(datapoints.odp0000 == '0') {
+        } else if(datapoints[this.sensorDataPoint] == this.closeValue) {
             this.closed();
-        } else if(datapoints.idp0000 == '0') {
+        } else if(datapoints[this.actuatorDataPoint] == this.closeValue) {
+            this._isOpening = false;
             this.emit(DoorOpenerEvent.CLOSE);
         } else {
             console.log(this.serialNumber, this.channel, 'unknown datapoint value', datapoints);

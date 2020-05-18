@@ -1,6 +1,10 @@
 import {Device} from "./Device";
 import {ChannelInfo, Connection, DeviceInfo} from "./Connection";
 
+export enum DeviceEvent {
+    CHANGE = 'change'
+}
+
 export class SubDevice extends Device
 {
     public readonly channel:number;
@@ -14,6 +18,11 @@ export class SubDevice extends Device
         super(connection, serialNumber);
 
         this.channel = channel;
+    }
+
+    public changed(): void
+    {
+        this.emit(DeviceEvent.CHANGE);
     }
 
     public handleState(info: DeviceInfo)

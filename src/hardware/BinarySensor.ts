@@ -7,9 +7,17 @@ export enum BinarySensorEvent
     DEACTIVATED = 'deactivated',
 }
 
+/**
+ * @event DeviceEvent.CHANGE
+ * @event BinarySensorEvent.ACTIVATED
+ * @event BinarySensorEvent.DEACTIVATED
+ */
 export class BinarySensor extends SubDevice
 {
     private active:boolean = false;
+    private readonly datapoint:string = 'odp0000';
+    private readonly activeValue:string = '1';
+    private readonly inactiveValue:string = '0';
 
     constructor(connection:Connection, serialNumber:string, channel:number)
     {
@@ -19,39 +27,41 @@ export class BinarySensor extends SubDevice
         // this.on(BinarySensorEvent.DEACTIVATED, () => {console.log(this.displayName, 'BinarySensor turned off')});
     }
 
-    private activated():void
+    private activated(): void
     {
         this.active = true;
         this.emit(BinarySensorEvent.ACTIVATED);
+        this.changed();
     }
 
-    private deactivated():void
+    private deactivated(): void
     {
         this.active = false;
         this.emit(BinarySensorEvent.DEACTIVATED);
+        this.changed();
     }
 
-    public isActive():boolean
+    public isActive(): boolean
     {
         return this.active;
     }
 
-    handleChannelState(datapoints:{[dp:string]: string})
+    handleChannelState(datapoints:{[dp:string]: string}): void
     {
-        if(datapoints.odp0000 == '1') {
+        if(datapoints[this.datapoint] == this.activeValue) {
             this.active = true;
-        } else if(datapoints.odp0000 == '0') {
+        } else if(datapoints[this.datapoint] == this.inactiveValue) {
             this.active = false;
         } else {
             console.log(this.serialNumber, this.channel.toString(16), 'unknown initial datapoint value', datapoints);
         }
     }
 
-    handleChannelUpdate(datapoints:{[dp:string]: string})
+    handleChannelUpdate(datapoints:{[dp:string]: string}): void
     {
-        if(datapoints.odp0000 == '1') {
+        if(datapoints[this.datapoint] == this.activeValue) {
             this.activated();
-        } else if(datapoints.odp0000 == '0') {
+        } else if(datapoints[this.datapoint] == this.inactiveValue) {
             this.deactivated();
         } else {
             console.log(this.serialNumber, this.channel, 'unknown datapoint value', datapoints);
