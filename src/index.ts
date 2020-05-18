@@ -1,6 +1,6 @@
 export { DeviceManager } from './DeviceManager';
 export { Device } from './Device';
-export { SubDevice } from './SubDevice';
+export { SubDevice, DeviceEvent } from './SubDevice';
 
 export { HomeTouchPanel } from "./hardware/HomeTouchPanel";
 export { AutomaticDoorOpener, AutomaticDoorOpenerEvent } from "./hardware/AutomaticDoorOpener";
