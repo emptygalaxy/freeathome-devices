@@ -1,9 +1,9 @@
-import {Device} from "../Device";
-import {Connection} from "../Connection";
-import {DoorCall} from "./DoorCall";
-import {DoorOpener} from "./DoorOpener";
-import {Light} from "./Light";
-import {AutomaticDoorOpener} from "./AutomaticDoorOpener";
+import { Device } from "../Device";
+import { Connection } from "../Connection";
+import { DoorCall } from "./DoorCall";
+import { DoorOpener } from "./DoorOpener";
+import { Light } from "./Light";
+import { AutomaticDoorOpener } from "./AutomaticDoorOpener";
 
 export class HomeTouchPanel extends Device
 {

@@ -23,7 +23,8 @@ export type DeviceInfo =
 {
     serialNumber: string;
     deviceId: string;
-    typeId: string;
+    typeName?: string;
+    typeId?: string;
     channels: {[channel: string]: ChannelInfo};
 }
 

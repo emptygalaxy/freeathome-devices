@@ -9,10 +9,6 @@ export class SubDevice extends Device
 {
     public readonly channel:number;
 
-    protected displayName?: string;
-    protected floor?: string;
-    protected room?: string;
-
     constructor(connection:Connection, serialNumber:string, channel:number)
     {
         super(connection, serialNumber);

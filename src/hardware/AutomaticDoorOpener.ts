@@ -66,6 +66,7 @@ export class AutomaticDoorOpener extends SubDevice{
 
     handleChannelState(datapoints:{[dp:string]: string}): void
     {
+        console.log(this.constructor.name, 'handleChannelState', datapoints[this.actuatorDatapoint]);
         if(datapoints[this.actuatorDatapoint] == this.activeValue) {
             this.active = true;
         } else if(datapoints[this.actuatorDatapoint] == this.inactiveValue) {
