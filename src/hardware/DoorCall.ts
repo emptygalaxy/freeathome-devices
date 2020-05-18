@@ -1,4 +1,4 @@
-import { Connection, DeviceInfo } from "../Connection";
+import {ChannelInfo, Connection, DeviceInfo} from "../Connection";
 import { SubDevice } from "../SubDevice";
 import { DoorOpener } from "./DoorOpener";
 
@@ -63,6 +63,16 @@ export  class DoorCall extends SubDevice
     public handleState(info: DeviceInfo)
     {
         super.handleState(info);
+
+        if(this.actuatorChannel) {
+            let ch:string = SubDevice.formatChannelString(this.actuatorChannel);
+            if(info.channels[ch]) {
+                let channel: ChannelInfo = info.channels[ch];
+                this.displayName = channel.displayName;
+                this.floor = channel.floor;
+                this.room = channel.room;
+            }
+        }
 
         if(this.doorOpener) {
             this.floor = this.doorOpener.getFloor();
