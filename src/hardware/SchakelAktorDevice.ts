@@ -1,11 +1,9 @@
-import {Device} from "../Device";
 import {Connection} from "../Connection";
 import {SchakelAktor} from "./SchakelAktor";
+import {BridgeDevice} from "./BridgeDevice";
 
-export class SchakelAktorDevice extends Device
+export class SchakelAktorDevice extends BridgeDevice
 {
-    private devices:Device[] = [];
-
     constructor(connection:Connection, serialNumber:string, channels:number)
     {
         super(connection, serialNumber);
@@ -14,10 +12,5 @@ export class SchakelAktorDevice extends Device
         {
             this.devices.push(new SchakelAktor(connection, serialNumber, channel));
         }
-    }
-
-    public getSubDevices():Device[]
-    {
-        return this.devices;
     }
 }

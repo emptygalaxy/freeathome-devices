@@ -1,14 +1,12 @@
-import { Device } from "../Device";
 import { Connection } from "../Connection";
 import { DoorCall } from "./DoorCall";
 import { DoorOpener } from "./DoorOpener";
 import { Light } from "./Light";
 import { AutomaticDoorOpener } from "./AutomaticDoorOpener";
+import {BridgeDevice} from "./BridgeDevice";
 
-export class HomeTouchPanel extends Device
+export class HomeTouchPanel extends BridgeDevice
 {
-    private devices:Device[] = [];
-
     public readonly hallwayLight:Light;
     public readonly doorOpener1:DoorOpener;
     public readonly doorOpener2:DoorOpener;
@@ -38,22 +36,17 @@ export class HomeTouchPanel extends Device
         this.defaultDoorOpener = new DoorOpener(connection, serialNumber, HomeTouchPanelChannels.DOOR_OPENER_DEFAULT);
         this.devices.push(this.defaultDoorOpener);
 
-        this.doorCall1 = new DoorCall(connection, serialNumber, HomeTouchPanelChannels.DOOR_CALL_1);
-        this.doorCall2 = new DoorCall(connection, serialNumber, HomeTouchPanelChannels.DOOR_CALL_2);
-        this.doorCall3 = new DoorCall(connection, serialNumber, HomeTouchPanelChannels.DOOR_CALL_3);
-        this.doorCall4 = new DoorCall(connection, serialNumber, HomeTouchPanelChannels.DOOR_CALL_4);
+        this.doorCall1 = new DoorCall(connection, serialNumber, this.doorOpener1, HomeTouchPanelChannels.DOOR_CALL_1);
+        this.doorCall2 = new DoorCall(connection, serialNumber, this.doorOpener2, HomeTouchPanelChannels.DOOR_CALL_2);
+        this.doorCall3 = new DoorCall(connection, serialNumber, this.doorOpener3, HomeTouchPanelChannels.DOOR_CALL_3);
+        this.doorCall4 = new DoorCall(connection, serialNumber, this.doorOpener4, HomeTouchPanelChannels.DOOR_CALL_4);
         this.devices.push(this.doorCall1, this.doorCall2, this.doorCall3, this.doorCall4);
 
         this.automaticDoorOpener = new AutomaticDoorOpener(connection, serialNumber, HomeTouchPanelChannels.AUTOMATIC_DOOR_OPENER);
         this.devices.push(this.automaticDoorOpener);
 
-        this.callLevelDoorCall = new DoorCall(connection, serialNumber, HomeTouchPanelChannels.DOOR_ENTRY_SYSTEM_CALL_LEVEL_SENSOR, HomeTouchPanelChannels.DOOR_ENTRY_SYSTEM_CALL_LEVEL_ACTUATOR);
+        this.callLevelDoorCall = new DoorCall(connection, serialNumber, undefined, HomeTouchPanelChannels.DOOR_ENTRY_SYSTEM_CALL_LEVEL_SENSOR, HomeTouchPanelChannels.DOOR_ENTRY_SYSTEM_CALL_LEVEL_ACTUATOR);
         this.devices.push(this.callLevelDoorCall);
-    }
-
-    public getSubDevices():Device[]
-    {
-        return this.devices;
     }
 }
 

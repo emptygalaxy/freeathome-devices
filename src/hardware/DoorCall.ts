@@ -1,5 +1,6 @@
-import {Connection} from "../Connection";
-import {SubDevice} from "../SubDevice";
+import { Connection, DeviceInfo } from "../Connection";
+import { SubDevice } from "../SubDevice";
+import { DoorOpener } from "./DoorOpener";
 
 
 export enum DoorCallEvent
@@ -13,14 +14,16 @@ export enum DoorCallEvent
  */
 export  class DoorCall extends SubDevice
 {
+    public readonly doorOpener?:DoorOpener;
     private actuatorChannel?:number;
     private readonly actuatorDataPoint:string = 'idp0000';
     private readonly actuatorValue:string = '1';
 
-    constructor(connection:Connection, serialNumber:string, channel:number, actuatorChannel?:number)
+    constructor(connection:Connection, serialNumber:string, doorOpener:DoorOpener|undefined, channel:number, actuatorChannel?:number)
     {
         super(connection, serialNumber, channel);
 
+        this.doorOpener = doorOpener;
         this.actuatorChannel = actuatorChannel;
 
         // this.on(DoorCallEvent.TRIGGER, () => { console.log(this.displayName, 'Calling'); });
@@ -55,6 +58,16 @@ export  class DoorCall extends SubDevice
     private triggered()
     {
         this.emit(DoorCallEvent.TRIGGERED);
+    }
+
+    public handleState(info: DeviceInfo)
+    {
+        super.handleState(info);
+
+        if(this.doorOpener) {
+            this.floor = this.doorOpener.getFloor();
+            this.room = this.doorOpener.getRoom();
+        }
     }
 
     handleChannelUpdate(datapoints:{[dp:string]: string})
