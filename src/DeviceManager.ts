@@ -40,7 +40,7 @@ export class DeviceManager extends EventEmitter
 
             if (device != undefined) {
                 // initial
-                console.log(info.channels);
+                // console.log(info.channels);
                 device.handleState(info);
 
                 // console.log(info);
@@ -61,8 +61,6 @@ export class DeviceManager extends EventEmitter
 
         this.hasDevices = true;
         this.emit(ConnectionEvent.DEVICES);
-
-        console.log(this.getDevicesWithFunction(SupportedFunctionId.DOOR_OPENER_ACTUATOR));
     }
 
     private handleUpdate(message:BroadcastMessage)
