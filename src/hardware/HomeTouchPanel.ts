@@ -1,12 +1,23 @@
-import { Connection } from "../Connection";
-import { DoorCall } from "./DoorCall";
-import { DoorOpener } from "./DoorOpener";
-import { Light } from "./Light";
-import { AutomaticDoorOpener } from "./AutomaticDoorOpener";
+import {Connection} from "../Connection";
+import {DoorCall} from "./DoorCall";
+import {DoorOpener} from "./DoorOpener";
+import {Light} from "./Light";
+import {AutomaticDoorOpener} from "./AutomaticDoorOpener";
 import {BridgeDevice} from "./BridgeDevice";
+import {FunctionId} from "../FunctionId";
 
 export class HomeTouchPanel extends BridgeDevice
 {
+    public static functionIds: FunctionId[] = [
+        FunctionId.FID_DES_DEVICE_SETTINGS,
+        FunctionId.FID_DES_DOOR_RINGING_SENSOR,
+        FunctionId.FID_DES_LEVEL_CALL_SENSOR,
+        FunctionId.FID_DES_LEVEL_CALL_ACTUATOR,
+        FunctionId.FID_DES_LIGHT_SWITCH_ACTUATOR,
+        FunctionId.FID_DES_DOOR_OPENER_ACTUATOR,
+        FunctionId.FID_DES_AUTOMATIC_DOOR_OPENER_ACTUATOR
+    ];
+
     public readonly hallwayLight:Light;
     public readonly doorOpener1:DoorOpener;
     public readonly doorOpener2:DoorOpener;
@@ -71,14 +82,4 @@ export enum HomeTouchPanelChannels
     DOOR_CALL_4 = 0x001B,
 
     AUTOMATIC_DOOR_OPENER = 0x001C,
-}
-
-export enum DeviceFunction
-{
-    DOOR_OPENER = 0x1a,
-    DOOR_CALL = 0x1f,
-    CORRIDOR_LIGHT = 0x21,
-    DOOR_ENTRY_SYSTEM_CALL_LEVEL_ACTUATOR = 0x1d,
-    DOOR_ENTRY_SYSTEM_CALL_LEVEL_SENSOR = 0x1e,
-    AUTOMATIC_DOOR_OPENER = 0x20,
 }

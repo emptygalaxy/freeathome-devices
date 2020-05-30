@@ -1,5 +1,7 @@
 import {Connection} from "../Connection";
 import {SubDevice} from "../SubDevice";
+import {FunctionId} from "../FunctionId";
+import {PairingId} from "../PairingId";
 
 export enum DoorOpenerEvent{
     OPEN,
@@ -17,10 +19,16 @@ export enum DoorOpenerEvent{
  */
 export class DoorOpener extends SubDevice
 {
+    public static functionIds: FunctionId[] = [FunctionId.FID_DES_DOOR_OPENER_ACTUATOR];
+
     public _isOpening: boolean = false;
     public _isOpen: boolean = false;
     private readonly sensorDataPoint: string = 'odp0000';
+    private readonly sensorDataPointPairingId: PairingId = PairingId.AL_INFO_ON_OFF;
+
     private readonly actuatorDataPoint: string = 'idp0000';
+    private readonly actuatorDataPointPairingId: PairingId = PairingId.AL_TIMED_START_STOP;
+
     private readonly openValue: string = '1';
     private readonly closeValue: string = '0';
 
@@ -43,6 +51,14 @@ export class DoorOpener extends SubDevice
         this.setDatapoint(this.channel, this.actuatorDataPoint, this.openValue);
     }
 
+    private opening()
+    {
+        this._isOpening = true;
+
+        this.emit(DoorOpenerEvent.OPEN);
+        this.changed();
+    }
+
     private opened()
     {
         this._isOpening = false;
@@ -54,14 +70,25 @@ export class DoorOpener extends SubDevice
 
     public close()
     {
+        this._isOpening = false;
+
         this.emit(DoorOpenerEvent.CLOSE);
         this.setDatapoint(this.actuatorChannel, this.actuatorDataPoint, this.closeValue);
+    }
+
+    private closing()
+    {
+        this._isOpening = false;
+
+        this.emit(DoorOpenerEvent.CLOSE);
+        this.changed();
     }
 
     private closed()
     {
         this._isOpening = false;
         this._isOpen = false;
+
         this.emit(DoorOpenerEvent.CLOSED);
         this.changed();
     }
@@ -93,13 +120,11 @@ export class DoorOpener extends SubDevice
         if(datapoints[this.sensorDataPoint] == this.openValue) {
             this.opened();
         } else if(datapoints[this.actuatorDataPoint] == this.openValue) {
-            this._isOpening = true;
-            this.emit(DoorOpenerEvent.OPEN);
+            this.opening();
         } else if(datapoints[this.sensorDataPoint] == this.closeValue) {
             this.closed();
         } else if(datapoints[this.actuatorDataPoint] == this.closeValue) {
-            this._isOpening = false;
-            this.emit(DoorOpenerEvent.CLOSE);
+            this.closing();
         } else {
             console.log(this.serialNumber, this.channel, 'unknown datapoint value', datapoints);
         }

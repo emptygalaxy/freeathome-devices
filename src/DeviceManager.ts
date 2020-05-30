@@ -7,6 +7,9 @@ import {BinarySensorDevice} from "./hardware/BinarySensorDevice";
 import {SchakelAktorDevice} from "./hardware/SchakelAktorDevice";
 import {SysAP} from "./hardware/SysAP";
 import {ClientConfiguration} from "freeathome-api";
+import {JalousieDevice} from "./hardware/JalousieDevice";
+import {ThermostatDevice} from "./hardware/ThermostatDevice";
+import {FunctionId} from "./FunctionId";
 const EventEmitter = require("events");
 
 export class DeviceManager extends EventEmitter
@@ -37,6 +40,7 @@ export class DeviceManager extends EventEmitter
 
             if (device != undefined) {
                 // initial
+                console.log(info.channels);
                 device.handleState(info);
 
                 // console.log(info);
@@ -57,6 +61,8 @@ export class DeviceManager extends EventEmitter
 
         this.hasDevices = true;
         this.emit(ConnectionEvent.DEVICES);
+
+        console.log(this.getDevicesWithFunction(SupportedFunctionId.DOOR_OPENER_ACTUATOR));
     }
 
     private handleUpdate(message:BroadcastMessage)
@@ -84,6 +90,11 @@ export class DeviceManager extends EventEmitter
     public getDevices():Device[]
     {
         return this.devices;
+    }
+
+    public getDevicesWithFunction(functionId:FunctionId|SupportedFunctionId):Device[]
+    {
+        return this.allDevices.filter((device:Device) => { return device instanceof SubDevice && device.getFunctionId() == functionId; });
     }
 
     public getDevice(serialNumber:string, channel:number):SubDevice|null
@@ -121,6 +132,12 @@ export class DeviceManager extends EventEmitter
             case DeviceType.SchakelAktor:
                 return new SchakelAktorDevice(this.connection, serialNumber, 1);
 
+            case DeviceType.Jalousie:
+                return new JalousieDevice(this.connection, serialNumber, 1);
+
+            case DeviceType.Thermostat:
+                return new ThermostatDevice(this.connection, serialNumber, 1);
+
             case DeviceType.SystemAccessPoint:
                 return new SysAP(this.connection, serialNumber);
 
@@ -132,51 +149,118 @@ export class DeviceManager extends EventEmitter
 
     private static getDeviceType(typeId:string): DeviceType|undefined
     {
-        switch(typeId)
+        let typeNumber: number = Number.parseInt(typeId, 16);
+
+        switch(typeNumber)
         {
-            case 'FFFF':
-            case '1012':
-            case '2012':
+            case DeviceTypeId.SysAP:
+            case DeviceTypeId.CommunicationInterface1:
+            case DeviceTypeId.CommunicationInterface2:
                 return DeviceType.SystemAccessPoint;
 
-            case '1004':
+            case DeviceTypeId.Thermostat:
                 return DeviceType.Thermostat;
 
-            case 'B001':
-            case '1013':
-            case '1015':
+            case DeviceTypeId.SensorJalousieAktor_1_fach:
+            case DeviceTypeId.JalousieAktor_4_fach:
+            case DeviceTypeId.Jalousie3:
                 return DeviceType.Jalousie;
 
-            case 'B008':
-            case 'B002':
-            case '100C':
-            case '1010':
-            case '100E':
-            case '0001':
+            case DeviceTypeId.SchakelAktor_4_fach:
+            case DeviceTypeId.SensorSchakelAktor_2_1_fach:
+            case DeviceTypeId.SensorSchakelAktor_8_fach:
+            case DeviceTypeId.SchakelAktor3:
+            case DeviceTypeId.SchakelAktor4:
+            case DeviceTypeId.VirtualSchakelAktor:
                 return DeviceType.SchakelAktor;
 
-            case '1021':
-            case '1022':
-            case '101C':
-            case '1017':
-            case '1019':
+            case DeviceTypeId.DimmAktor2:
+            case DeviceTypeId.DimmAktor4:
+            case DeviceTypeId.DimmAktor5:
+            case DeviceTypeId.DimmAktor_4_fach:
+            case DeviceTypeId.DimmAktor_4_fach_v2:
                 return DeviceType.DimmAktor;
 
             // case '0001':
             //     return DeviceType.MediaPlayer;
 
-            case '1038':
+            case DeviceTypeId.HomeTouch:
                 return DeviceType.HomeTouch;
 
-            case 'B005':
-            case 'B007':
-            case '0004':
+            case DeviceTypeId.BinarySensor1:
+            case DeviceTypeId.BinarySensor2:
+            case DeviceTypeId.BinarySensor3:
                 return DeviceType.BinarySensory;
 
             // default:
             //     console.log('Unknown typeId:', typeId);
         }
     }
+}
+
+export enum DeviceTypeId
+{
+    HomeTouch = 0x1038,
+    SysAP = 0xFFFF,
+    CommunicationInterface1  = 0x1012,
+    CommunicationInterface2  = 0x2012,
+
+    Thermostat = 0x1004,
+
+    /**
+     * Jalousieaktor 4-fach, REG
+     */
+    JalousieAktor_4_fach = 0xB001,
+
+    /**
+     * Sensor/ Jalousieaktor 1/1-fach
+     */
+    SensorJalousieAktor_1_fach = 0x1013,
+    Jalousie3 = 0x1015,
+
+    /**
+     * Sensor/ Schaltaktor 8/8fach, REG
+     */
+    SensorSchakelAktor_8_fach = 0xB008,
+
+    /**
+     * Schaltaktor 4-fach, 16A, REG
+     */
+    SchakelAktor_4_fach = 0xB002,
+    SchakelAktor3 = 0x100C,
+    SchakelAktor4 = 0x1010,
+
+    /**
+     * Sensor/ Schaltaktor 2/1-fach
+     */
+    SensorSchakelAktor_2_1_fach = 0x100E,
+    VirtualSchakelAktor = 0x0001,
+
+    DimmAktor2 = 0x1022,
+    /**
+     * Dimmaktor 4-fach
+     */
+    DimmAktor_4_fach = 0x101C,
+    /**
+     * Dimmaktor 4-fach v2
+     */
+    DimmAktor_4_fach_v2 = 0x1021,
+    DimmAktor4 = 0x1017,
+    DimmAktor5 = 0x1019,
+
+    BinarySensor1 = 0xB005,
+    BinarySensor2 = 0xB007,
+    BinarySensor3 = 0x0004,
+
+    /**
+     * Hue Aktor (Plug Switch)
+     */
+    HueAktor = 0x10C4,
+
+    /**
+     * Hue Aktor (LED Strip)
+     */
+    HueAktorLedStrip = 0x10C0,
 }
 
 export enum DeviceType
@@ -189,4 +273,12 @@ export enum DeviceType
     HomeTouch,
     BinarySensory,
     SystemAccessPoint,
+}
+
+export enum SupportedFunctionId
+{
+    DOOR_OPENER_ACTUATOR = FunctionId.FID_DES_DOOR_OPENER_ACTUATOR,
+    AUTOMATIC_DOOR_OPENER_ACTUATOR = FunctionId.FID_DES_AUTOMATIC_DOOR_OPENER_ACTUATOR,
+    LEVEL_CALL_ACTUATOR = FunctionId.FID_DES_LEVEL_CALL_ACTUATOR,
+    LEVEL_CALL_SENSOR = FunctionId.FID_DES_LEVEL_CALL_SENSOR,
 }

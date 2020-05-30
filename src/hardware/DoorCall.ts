@@ -1,6 +1,8 @@
 import {ChannelInfo, Connection, DeviceInfo} from "../Connection";
-import { SubDevice } from "../SubDevice";
-import { DoorOpener } from "./DoorOpener";
+import {SubDevice} from "../SubDevice";
+import {DoorOpener} from "./DoorOpener";
+import {FunctionId} from "../FunctionId";
+import {PairingId} from "../PairingId";
 
 
 export enum DoorCallEvent
@@ -14,9 +16,18 @@ export enum DoorCallEvent
  */
 export  class DoorCall extends SubDevice
 {
+    public static functionIds: FunctionId[] = [FunctionId.FID_DES_DOOR_RINGING_SENSOR, FunctionId.FID_DES_LEVEL_CALL_SENSOR, FunctionId.FID_DES_LEVEL_CALL_ACTUATOR];
+
     public readonly doorOpener?:DoorOpener;
+
+    private readonly sensorDataPoint:string = 'odp0000';
+    private readonly sensorDataPointPairingId: PairingId = PairingId.AL_TIMED_START_STOP;
+    private readonly sensorValue:string = '1';
+
     private actuatorChannel?:number;
+
     private readonly actuatorDataPoint:string = 'idp0000';
+    private readonly actuatorDataPointPairingId: PairingId = PairingId.AL_INFO_ON_OFF;
     private readonly actuatorValue:string = '1';
 
     constructor(connection:Connection, serialNumber:string, doorOpener:DoorOpener|undefined, channel:number, actuatorChannel?:number)
@@ -82,7 +93,7 @@ export  class DoorCall extends SubDevice
 
     handleChannelUpdate(datapoints:{[dp:string]: string})
     {
-        if(datapoints.odp0000 == '1') {
+        if(datapoints[this.sensorDataPoint] == this.sensorValue) {
             this.triggered();
         } else {
             console.log(this.serialNumber, this.channel, 'unknown datapoint value', datapoints);

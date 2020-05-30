@@ -1,5 +1,7 @@
 import {Connection} from "../Connection";
 import {SubDevice} from "../SubDevice";
+import {FunctionId} from "../FunctionId";
+import {PairingId} from "../PairingId";
 
 export enum BinarySensorEvent
 {
@@ -16,6 +18,8 @@ export class BinarySensor extends SubDevice
 {
     private active:boolean = false;
     private readonly datapoint:string = 'odp0000';
+    private readonly datapointPairingId: PairingId = PairingId.AL_SWITCH_ON_OFF;
+
     private readonly activeValue:string = '1';
     private readonly inactiveValue:string = '0';
 

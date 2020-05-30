@@ -1,5 +1,6 @@
 import {Device} from "./Device";
 import {ChannelInfo, Connection, DeviceInfo} from "./Connection";
+import {FunctionId} from "./FunctionId";
 
 export enum DeviceEvent {
     CHANGE = 'change'
@@ -8,6 +9,7 @@ export enum DeviceEvent {
 export class SubDevice extends Device
 {
     public readonly channel:number;
+    private functionId?: FunctionId;
 
     constructor(connection:Connection, serialNumber:string, channel:number)
     {
@@ -19,6 +21,11 @@ export class SubDevice extends Device
     public changed(): void
     {
         this.emit(DeviceEvent.CHANGE);
+    }
+
+    public getFunctionId(): FunctionId|undefined
+    {
+        return this.functionId;
     }
 
     public handleState(info: DeviceInfo)
@@ -33,6 +40,8 @@ export class SubDevice extends Device
                 this.displayName = channel.displayName;
                 this.floor = channel.floor;
                 this.room = channel.room;
+
+                this.functionId = SubDevice.parseFunctionId(channel.functionId);
 
                 this.handleChannelState(channel.datapoints);
             }
@@ -62,5 +71,14 @@ export class SubDevice extends Device
     protected handleChannelUpdate(datapoints:{[dp:string]: string})
     {
 
+    }
+
+    public static parseFunctionId(functionId: string): FunctionId|undefined
+    {
+        let functionIdNumber: number = Number.parseInt(functionId, 16);
+        if(functionIdNumber in FunctionId)
+            return functionIdNumber;
+
+        return undefined;
     }
 }

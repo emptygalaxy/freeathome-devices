@@ -1,5 +1,7 @@
 import {SubDevice} from "../SubDevice";
 import {Connection} from "../Connection";
+import {FunctionId} from "../FunctionId";
+import {PairingId} from "../PairingId";
 
 
 export enum AutomaticDoorOpenerEvent {
@@ -16,10 +18,17 @@ export enum AutomaticDoorOpenerEvent {
  * @event AutomaticDoorOpenerEvent.DISABLE
  * @event AutomaticDoorOpenerEvent.DISABLED
  */
-export class AutomaticDoorOpener extends SubDevice{
+export class AutomaticDoorOpener extends SubDevice
+{
+    public static functionIds: FunctionId[] = [FunctionId.FID_DES_AUTOMATIC_DOOR_OPENER_ACTUATOR];
+
     private active:boolean = false;
     private readonly actuatorDatapoint: string = 'idp0000';
+    private readonly actuatorDatapointPairingId: PairingId = PairingId.AL_SWITCH_ON_OFF;
+
     private readonly sensorDatapoint: string = 'odp0000';
+    private readonly sensorDatapointPairingId: PairingId = PairingId.AL_INFO_ON_OFF;
+
     private readonly activeValue:string = '1';
     private readonly inactiveValue:string = '0';
 

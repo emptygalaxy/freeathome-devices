@@ -1,5 +1,7 @@
 import {Connection} from "../Connection";
 import {SubDevice} from "../SubDevice";
+import {FunctionId} from "../FunctionId";
+import {PairingId} from "../PairingId";
 
 export enum SchakelAktorEvent
 {
@@ -11,8 +13,15 @@ export enum SchakelAktorEvent
 
 export class SchakelAktor extends SubDevice
 {
+    public static functionIds: FunctionId[] = [FunctionId.FID_SWITCH_ACTUATOR, FunctionId.FID_DES_LIGHT_SWITCH_ACTUATOR, FunctionId.FID_BLIND_ACTUATOR];
+
     protected active:boolean = false;
-    private readonly datapoint:string = 'odp0000';
+    private readonly sensorDatapoint:string = 'odp0000';
+    private readonly sensorDataPointPairingId: PairingId = PairingId.AL_TIMED_START_STOP;
+
+    private readonly actuatorDatapoint:string = 'idp0000';
+    private readonly actuatorDataPointPairingId: PairingId = PairingId.AL_SWITCH_ON_OFF;
+
     private readonly onValue:string = '1';
     private readonly offValue:string = '0';
 
@@ -29,6 +38,7 @@ export class SchakelAktor extends SubDevice
     public turnOn(): void
     {
         this.emit(SchakelAktorEvent.TURN_ON);
+        this.setDatapoint(this.channel, this.actuatorDatapoint, this.onValue);
     }
 
     protected turnedOn(): void
@@ -41,6 +51,7 @@ export class SchakelAktor extends SubDevice
     public turnOff(): void
     {
         this.emit(SchakelAktorEvent.TURN_OFF);
+        this.setDatapoint(this.channel, this.actuatorDatapoint, this.offValue);
     }
 
     protected turnedOff(): void
@@ -57,9 +68,9 @@ export class SchakelAktor extends SubDevice
 
     protected handleChannelState(datapoints:{[dp:string]: string}): void
     {
-        if(datapoints[this.datapoint] == this.onValue) {
+        if(datapoints[this.sensorDatapoint] == this.onValue) {
             this.active = true;
-        } else if(datapoints[this.datapoint] == this.offValue) {
+        } else if(datapoints[this.sensorDatapoint] == this.offValue) {
             this.active = false;
         } else {
             console.log(this.serialNumber, this.channel.toString(16), 'unknown initial datapoint value', datapoints);
@@ -68,9 +79,9 @@ export class SchakelAktor extends SubDevice
 
     protected handleChannelUpdate(datapoints:{[dp:string]: string}): void
     {
-        if(datapoints[this.datapoint] == this.onValue) {
+        if(datapoints[this.sensorDatapoint] == this.onValue) {
             this.turnedOn();
-        } else if(datapoints[this.datapoint] == this.offValue) {
+        } else if(datapoints[this.sensorDatapoint] == this.offValue) {
             this.turnedOff();
         } else {
             console.log(this.serialNumber, this.channel, 'unknown datapoint value', datapoints);

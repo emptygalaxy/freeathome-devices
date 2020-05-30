@@ -1,5 +1,6 @@
 import {Connection} from "../Connection";
 import {SchakelAktor} from "./SchakelAktor";
+import {FunctionId} from "../FunctionId";
 
 export enum LightEvent
 {
@@ -11,6 +12,8 @@ export enum LightEvent
 
 export class Light extends SchakelAktor
 {
+    public static functionIds: FunctionId[] = [FunctionId.FID_DES_LIGHT_SWITCH_ACTUATOR];
+
     constructor(connection:Connection, serialNumber:string, channel:number)
     {
         super(connection, serialNumber, channel);
