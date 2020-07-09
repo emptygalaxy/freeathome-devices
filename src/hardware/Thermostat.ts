@@ -28,7 +28,7 @@ export class Thermostat extends SubDevice
     ];
 
 
-    // private currentHeatingEnabled: boolean;
+    private currentHeatingEnabled: boolean;
     private targetHeatingEnabled: boolean;
     private currentTemperature: number;
     private targetTemperature: number;
@@ -50,6 +50,7 @@ export class Thermostat extends SubDevice
     {
         super(connection, serialNumber, channel);
 
+        this.currentHeatingEnabled = false;
         this.targetHeatingEnabled = false;
         this.currentTemperature = 0;
         this.lastTargetTemperature = this.targetTemperature = 0;

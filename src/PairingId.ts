@@ -33,7 +33,8 @@ export enum PairingId
 
     /**
      * Presence
-     * Announces presence triggered by an movement detector to be used by e.g. RTCs. Is independent of brightness and can be used for alerts e.g.
+     * Announces presence triggered by an movement detector to be used by e.g. RTCs.
+     * Is independent of brightness and can be used for alerts e.g.
      */
     AL_TIMED_PRESENCE = 0x0007,
 
@@ -117,13 +118,15 @@ export enum PairingId
 
     /**
      * Wind Alarm
-     * State of the wind sensor (sent cyclically and on COV) Moves the sunblind to a secure position and to block it for any further control
+     * State of the wind sensor (sent cyclically and on COV)
+     * Moves the sunblind to a secure position and to block it for any further control
      */
     AL_WIND_ALARM = 0x0025,
 
     /**
      * Frost Alarm
-     * State of the frost sensor (sent cyclically and on COV) Moves the sunblind to a secure position and to block it for any further control
+     * State of the frost sensor (sent cyclically and on COV)
+     * Moves the sunblind to a secure position and to block it for any further control
      */
     AL_FROST_ALARM = 0x0026,
 
@@ -921,7 +924,11 @@ export enum PairingId
 
     /**
      * Info wallbox status
-     * Wallbox status 00000001: car plugged in, 00000002: Authorization granted, 00000004: Not charging, battery fully loaded, 40000000: charging stopped due to blackout prevention, 80000000: Ground fault error
+     * Wallbox status 00000001: car plugged in,
+     *                00000002: Authorization granted,
+     *                00000004: Not charging, battery fully loaded,
+     *                40000000: charging stopped due to blackout prevention,
+     *                80000000: Ground fault error
      */
     AL_INFO_WALLBOX_STATUS = 0x04B4,
 

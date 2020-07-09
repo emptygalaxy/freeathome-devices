@@ -1,84 +1,76 @@
-import {Device} from "./Device";
-import {ChannelInfo, Connection, DeviceInfo} from "./Connection";
-import {FunctionId} from "./FunctionId";
+import {Device} from './Device';
+import {ChannelInfo, Connection, DeviceInfo} from './Connection';
+import {FunctionId} from './FunctionId';
 
 export enum DeviceEvent {
     CHANGE = 'change'
 }
 
-export class SubDevice extends Device
-{
-    public readonly channel:number;
+export class SubDevice extends Device {
+    public readonly channel: number;
+
     private functionId?: FunctionId;
+    protected lastChannelUpdate?: {[dp: string]: string};
 
-    constructor(connection:Connection, serialNumber:string, channel:number)
-    {
-        super(connection, serialNumber);
+    constructor(connection: Connection, serialNumber: string, channel: number) {
+      super(connection, serialNumber);
 
-        this.channel = channel;
+      this.channel = channel;
     }
 
-    public changed(): void
-    {
-        this.emit(DeviceEvent.CHANGE);
+    public changed(): void {
+      this.emit(DeviceEvent.CHANGE);
     }
 
-    public getFunctionId(): FunctionId|undefined
-    {
-        return this.functionId;
+    public getFunctionId(): FunctionId|undefined {
+      return this.functionId;
     }
 
-    public handleState(info: DeviceInfo)
-    {
-        for(let channelId in info.channels)
-        {
-            let channelNumber:number = SubDevice.parseChannelString(channelId);
-            if(channelNumber == this.channel)
-            {
-                let channel:ChannelInfo = info.channels[channelId];
+    public handleState(info: DeviceInfo) {
+      super.handleState(info);
 
-                this.displayName = channel.displayName;
-                this.floor = channel.floor;
-                this.room = channel.room;
+      for(const channelId in info.channels) {
+        const channelNumber: number = SubDevice.parseChannelString(channelId);
+        if(channelNumber === this.channel) {
+          const channel: ChannelInfo = info.channels[channelId];
 
-                this.functionId = SubDevice.parseFunctionId(channel.functionId);
+          this.displayName = channel.displayName;
+          this.floor = channel.floor;
+          this.room = channel.room;
 
-                this.handleChannelState(channel.datapoints);
-            }
+          this.functionId = SubDevice.parseFunctionId(channel.functionId);
+
+          this.handleChannelState(channel.datapoints);
         }
+      }
     }
 
-    protected handleChannelState(datapoints:{[dp:string]: string})
-    {
-
+    protected handleChannelState(datapoints: {[dp: string]: string}) {
+      this.lastChannelUpdate = datapoints;
     }
 
-    public handleUpdate(info: DeviceInfo)
-    {
-        super.handleUpdate(info);
+    public handleUpdate(info: DeviceInfo) {
+      super.handleUpdate(info);
 
-        for(let channelId in info.channels)
-        {
-            let channelNumber:number = SubDevice.parseChannelString(channelId);
-            if(channelNumber == this.channel)
-            {
-                let channel:ChannelInfo = info.channels[channelId];
-                this.handleChannelUpdate(channel.datapoints);
-            }
+      for(const channelId in info.channels) {
+        const channelNumber: number = SubDevice.parseChannelString(channelId);
+        if(channelNumber === this.channel) {
+          const channel: ChannelInfo = info.channels[channelId];
+          this.handleChannelUpdate(channel.datapoints);
         }
+      }
     }
 
-    protected handleChannelUpdate(datapoints:{[dp:string]: string})
-    {
-
+    protected handleChannelUpdate(datapoints: {[dp: string]: string}) {
+      this.lastChannelUpdate = datapoints;
     }
 
-    public static parseFunctionId(functionId: string): FunctionId|undefined
-    {
-        let functionIdNumber: number = Number.parseInt(functionId, 16);
-        if(functionIdNumber in FunctionId)
-            return functionIdNumber;
+    public static parseFunctionId(functionId: string): FunctionId|undefined {
+      const functionIdNumber: number = Number.parseInt(functionId, 16);
+      if(functionIdNumber in FunctionId) {
+        return functionIdNumber;
+      }
 
-        return undefined;
+      return undefined;
     }
 }

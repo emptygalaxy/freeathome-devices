@@ -4,10 +4,10 @@ import {FunctionId} from "../FunctionId";
 import {PairingId} from "../PairingId";
 
 export enum DoorOpenerEvent{
-    OPEN,
-    OPENED,
-    CLOSE,
-    CLOSED
+    OPEN = 'open',
+    OPENED = 'opened',
+    CLOSE = 'close',
+    CLOSED = 'closed'
 }
 
 /**
@@ -73,7 +73,7 @@ export class DoorOpener extends SubDevice
         this._isOpening = false;
 
         this.emit(DoorOpenerEvent.CLOSE);
-        this.setDatapoint(this.actuatorChannel, this.actuatorDataPoint, this.closeValue);
+        this.setDatapoint(this.channel, this.actuatorDataPoint, this.closeValue);
     }
 
     private closing()
@@ -104,8 +104,10 @@ export class DoorOpener extends SubDevice
     }
 
 
-    handleChannelState(datapoints:{[dp:string]: string})
+    protected handleChannelState(datapoints:{[dp:string]: string})
     {
+        super.handleChannelState(datapoints);
+
         if(datapoints[this.sensorDataPoint] == this.openValue) {
             this._isOpen = true;
         } else if(datapoints[this.sensorDataPoint] == this.closeValue) {
@@ -115,8 +117,10 @@ export class DoorOpener extends SubDevice
         }
     }
 
-    handleChannelUpdate(datapoints:{[dp:string]: string})
+    protected handleChannelUpdate(datapoints:{[dp:string]: string})
     {
+        super.handleChannelUpdate(datapoints);
+
         if(datapoints[this.sensorDataPoint] == this.openValue) {
             this.opened();
         } else if(datapoints[this.actuatorDataPoint] == this.openValue) {

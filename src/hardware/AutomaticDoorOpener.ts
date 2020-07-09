@@ -36,10 +36,10 @@ export class AutomaticDoorOpener extends SubDevice
     {
         super(connection, serialNumber, channel);
 
-        // this.on(AutomaticDoorOpenerEvent.ENABLE, () => {console.log(this.displayName, 'Automatic door opener enabling')});
-        // this.on(AutomaticDoorOpenerEvent.DISABLE, () => {console.log(this.displayName, 'Automatic door opener disabling')});
-        // this.on(AutomaticDoorOpenerEvent.ENABLED, () => {console.log(this.displayName, 'Automatic door opener enabled')});
-        // this.on(AutomaticDoorOpenerEvent.DISABLED, () => {console.log(this.displayName, 'Automatic door opener disabled')});
+        this.on(AutomaticDoorOpenerEvent.ENABLE, () => {console.log(this.displayName, 'Automatic door opener enabling')});
+        this.on(AutomaticDoorOpenerEvent.DISABLE, () => {console.log(this.displayName, 'Automatic door opener disabling')});
+        this.on(AutomaticDoorOpenerEvent.ENABLED, () => {console.log(this.displayName, 'Automatic door opener enabled')});
+        this.on(AutomaticDoorOpenerEvent.DISABLED, () => {console.log(this.displayName, 'Automatic door opener disabled')});
     }
 
     public enable(): void
@@ -73,8 +73,10 @@ export class AutomaticDoorOpener extends SubDevice
         return this.active;
     }
 
-    handleChannelState(datapoints:{[dp:string]: string}): void
+    protected handleChannelState(datapoints:{[dp:string]: string}): void
     {
+        super.handleChannelState(datapoints);
+
         console.log(this.constructor.name, 'handleChannelState', datapoints[this.actuatorDatapoint]);
         if(datapoints[this.actuatorDatapoint] == this.activeValue) {
             this.active = true;
@@ -85,8 +87,10 @@ export class AutomaticDoorOpener extends SubDevice
         }
     }
 
-    handleChannelUpdate(datapoints:{[dp:string]: string}): void
+    protected handleChannelUpdate(datapoints:{[dp:string]: string}): void
     {
+        super.handleChannelUpdate(datapoints);
+
         if(datapoints[this.actuatorDatapoint] == this.activeValue) { // enabling
             this.emit(AutomaticDoorOpenerEvent.ENABLE);
         } else if(datapoints[this.actuatorDatapoint] == this.inactiveValue) { // disabling

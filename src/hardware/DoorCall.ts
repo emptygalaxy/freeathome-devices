@@ -73,6 +73,7 @@ export  class DoorCall extends SubDevice
 
     public handleState(info: DeviceInfo)
     {
+        console.log(info);
         super.handleState(info);
 
         if(this.actuatorChannel) {
@@ -91,8 +92,10 @@ export  class DoorCall extends SubDevice
         }
     }
 
-    handleChannelUpdate(datapoints:{[dp:string]: string})
+    protected handleChannelUpdate(datapoints:{[dp:string]: string})
     {
+        super.handleChannelUpdate(datapoints);
+
         if(datapoints[this.sensorDataPoint] == this.sensorValue) {
             this.triggered();
         } else {

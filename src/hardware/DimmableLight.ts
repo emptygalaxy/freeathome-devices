@@ -51,6 +51,8 @@ export class DimmableLight extends Light
 
     protected handleChannelUpdate(datapoints:{[dp:string]: string}): void
     {
+        super.handleChannelUpdate(datapoints);
+
         if(datapoints[this.minimumBrightnessDataPoint]) {
             this.mininumBrightness = parseInt(datapoints[this.minimumBrightnessDataPoint]);
         }

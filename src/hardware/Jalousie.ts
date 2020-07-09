@@ -60,6 +60,8 @@ export class Jalousie extends SubDevice
 
     protected handleChannelState(datapoints:{[dp:string]: string}): void
     {
+        super.handleChannelState(datapoints);
+
         if(datapoints[this.currentPositionDataPointGet]) {
             this.currentPosition = parseInt(datapoints[this.currentPositionDataPointGet]);
         }
@@ -75,6 +77,8 @@ export class Jalousie extends SubDevice
 
     protected handleChannelUpdate(datapoints:{[dp:string]: string}): void
     {
+        super.handleChannelUpdate(datapoints);
+
         let changed:boolean = false;
         if(datapoints[this.currentPositionDataPointGet]) {
             this.currentPosition = parseInt(datapoints[this.currentPositionDataPointGet]);

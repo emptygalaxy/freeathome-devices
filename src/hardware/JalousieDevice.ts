@@ -1,8 +1,8 @@
-import {Device} from "../Device";
 import {Connection} from "../Connection";
 import {Jalousie} from "./Jalousie";
+import {BridgeDevice} from "./BridgeDevice";
 
-export class JalousieDevice extends Device
+export class JalousieDevice extends BridgeDevice
 {
     public readonly jalousie?:Jalousie;
 

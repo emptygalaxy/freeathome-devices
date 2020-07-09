@@ -1,8 +1,9 @@
 import {Device} from "../Device";
 import {Connection} from "../Connection";
 import {Thermostat} from "./Thermostat";
+import {BridgeDevice} from "./BridgeDevice";
 
-export class ThermostatDevice extends Device
+export class ThermostatDevice extends BridgeDevice
 {
     public readonly thermostat?:Thermostat;
 

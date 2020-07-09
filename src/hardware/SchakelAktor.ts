@@ -68,6 +68,8 @@ export class SchakelAktor extends SubDevice
 
     protected handleChannelState(datapoints:{[dp:string]: string}): void
     {
+        super.handleChannelState(datapoints);
+
         if(datapoints[this.sensorDatapoint] == this.onValue) {
             this.active = true;
         } else if(datapoints[this.sensorDatapoint] == this.offValue) {
@@ -79,6 +81,8 @@ export class SchakelAktor extends SubDevice
 
     protected handleChannelUpdate(datapoints:{[dp:string]: string}): void
     {
+        super.handleChannelUpdate(datapoints);
+
         if(datapoints[this.sensorDatapoint] == this.onValue) {
             this.turnedOn();
         } else if(datapoints[this.sensorDatapoint] == this.offValue) {

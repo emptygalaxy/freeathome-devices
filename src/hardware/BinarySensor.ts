@@ -50,8 +50,10 @@ export class BinarySensor extends SubDevice
         return this.active;
     }
 
-    handleChannelState(datapoints:{[dp:string]: string}): void
+    protected handleChannelState(datapoints:{[dp:string]: string}): void
     {
+        super.handleChannelState(datapoints);
+
         if(datapoints[this.datapoint] == this.activeValue) {
             this.active = true;
         } else if(datapoints[this.datapoint] == this.inactiveValue) {
@@ -63,6 +65,8 @@ export class BinarySensor extends SubDevice
 
     handleChannelUpdate(datapoints:{[dp:string]: string}): void
     {
+        super.handleChannelUpdate(datapoints);
+
         if(datapoints[this.datapoint] == this.activeValue) {
             this.activated();
         } else if(datapoints[this.datapoint] == this.inactiveValue) {
