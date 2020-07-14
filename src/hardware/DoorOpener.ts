@@ -1,5 +1,5 @@
 import {Connection} from "../Connection";
-import {SubDevice} from "../SubDevice";
+import {DeviceEvent, SubDevice} from "../SubDevice";
 import {FunctionId} from "../FunctionId";
 import {PairingId} from "../PairingId";
 
@@ -24,10 +24,10 @@ export class DoorOpener extends SubDevice
     public _isOpening: boolean = false;
     public _isOpen: boolean = false;
     private readonly sensorDataPoint: string = 'odp0000';
-    private readonly sensorDataPointPairingId: PairingId = PairingId.AL_INFO_ON_OFF;
+    // private readonly sensorDataPointPairingId: PairingId = PairingId.AL_INFO_ON_OFF;
 
     private readonly actuatorDataPoint: string = 'idp0000';
-    private readonly actuatorDataPointPairingId: PairingId = PairingId.AL_TIMED_START_STOP;
+    // private readonly actuatorDataPointPairingId: PairingId = PairingId.AL_TIMED_START_STOP;
 
     private readonly openValue: string = '1';
     private readonly closeValue: string = '0';
@@ -40,10 +40,12 @@ export class DoorOpener extends SubDevice
         // this.on(DoorOpenerEvent.CLOSE, () => {console.log(this.displayName, 'Door closing')});
         // this.on(DoorOpenerEvent.OPENED, () => {console.log(this.displayName, 'Door opened')});
         // this.on(DoorOpenerEvent.CLOSED, () => {console.log(this.displayName, 'Door closed')});
+        // this.on(DeviceEvent.CHANGE, () => {console.log(this.displayName, 'Door updated')});
     }
 
     public open()
     {
+        console.log(this.getRoom(), 'open');
         this._isOpening = true;
         this.emit(DoorOpenerEvent.OPEN);
         this.changed();
@@ -53,6 +55,7 @@ export class DoorOpener extends SubDevice
 
     private opening()
     {
+        console.log(this.getRoom(), 'opening');
         this._isOpening = true;
 
         this.emit(DoorOpenerEvent.OPEN);
@@ -61,6 +64,7 @@ export class DoorOpener extends SubDevice
 
     private opened()
     {
+        console.log(this.getRoom(), 'opened');
         this._isOpening = false;
         this._isOpen = true;
 
@@ -70,14 +74,18 @@ export class DoorOpener extends SubDevice
 
     public close()
     {
+        console.log(this.getRoom(), 'close');
         this._isOpening = false;
 
         this.emit(DoorOpenerEvent.CLOSE);
+        this.changed();
+
         this.setDatapoint(this.channel, this.actuatorDataPoint, this.closeValue);
     }
 
     private closing()
     {
+        console.log(this.getRoom(), 'closing');
         this._isOpening = false;
 
         this.emit(DoorOpenerEvent.CLOSE);
@@ -86,6 +94,7 @@ export class DoorOpener extends SubDevice
 
     private closed()
     {
+        console.log(this.getRoom(), 'closed');
         this._isOpening = false;
         this._isOpen = false;
 
@@ -119,6 +128,7 @@ export class DoorOpener extends SubDevice
 
     protected handleChannelUpdate(datapoints:{[dp:string]: string})
     {
+        // console.log('handleChannelUpdate', datapoints);
         super.handleChannelUpdate(datapoints);
 
         if(datapoints[this.sensorDataPoint] == this.openValue) {
