@@ -49,7 +49,7 @@ export type ChannelInfo = {
 export class Connection extends EventEmitter implements Subscriber, Logger {
     private readonly sysAccessPoint: SystemAccessPoint;
     private readonly logger = console;
-    private readonly debugEnabled = false;
+    public debugEnabled = false;
 
     private connected = false;
     private ready = false;
@@ -127,7 +127,7 @@ export class Connection extends EventEmitter implements Subscriber, Logger {
       this.emit(ConnectionEvent.BROADCAST, message);
 
 
-      if(this._lastUpdate !== null) {
+      if(this._lastUpdate !== undefined) {
         const difference = new Date().getTime() - this._lastUpdate.getTime();
         this.logger.log('last log', this._lastUpdate, 'duration:', (difference / 1000), 'seconds ago');
       }
