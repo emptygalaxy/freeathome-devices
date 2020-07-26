@@ -1,4 +1,4 @@
-import {Connection} from "../Connection";
+import {Connection, DeviceInfo} from "../Connection";
 import {DoorCall} from "./DoorCall";
 import {DoorOpener} from "./DoorOpener";
 import {Light} from "./Light";
@@ -58,6 +58,11 @@ export class HomeTouchPanel extends BridgeDevice
 
         this.callLevelDoorCall = new DoorCall(connection, serialNumber, undefined, HomeTouchPanelChannels.DOOR_ENTRY_SYSTEM_CALL_LEVEL_SENSOR, HomeTouchPanelChannels.DOOR_ENTRY_SYSTEM_CALL_LEVEL_ACTUATOR);
         this.devices.push(this.callLevelDoorCall);
+    }
+
+    public handleUpdate(info: DeviceInfo) {
+        super.handleUpdate(info);
+        console.log('HomeTouchPanel update', info);
     }
 }
 

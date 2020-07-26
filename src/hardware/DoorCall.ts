@@ -2,7 +2,7 @@ import {ChannelInfo, Connection, DeviceInfo} from "../Connection";
 import {SubDevice} from "../SubDevice";
 import {DoorOpener} from "./DoorOpener";
 import {FunctionId} from "../FunctionId";
-import {PairingId} from "../PairingId";
+// import {PairingId} from "../PairingId";
 
 
 export enum DoorCallEvent
@@ -21,13 +21,13 @@ export  class DoorCall extends SubDevice
     public readonly doorOpener?:DoorOpener;
 
     private readonly sensorDataPoint:string = 'odp0000';
-    private readonly sensorDataPointPairingId: PairingId = PairingId.AL_TIMED_START_STOP;
+    // private readonly sensorDataPointPairingId: PairingId = PairingId.AL_TIMED_START_STOP;
     private readonly sensorValue:string = '1';
 
     private actuatorChannel?:number;
 
     private readonly actuatorDataPoint:string = 'idp0000';
-    private readonly actuatorDataPointPairingId: PairingId = PairingId.AL_INFO_ON_OFF;
+    // private readonly actuatorDataPointPairingId: PairingId = PairingId.AL_INFO_ON_OFF;
     private readonly actuatorValue:string = '1';
 
     constructor(connection:Connection, serialNumber:string, doorOpener:DoorOpener|undefined, channel:number, actuatorChannel?:number)
@@ -73,7 +73,7 @@ export  class DoorCall extends SubDevice
 
     public handleState(info: DeviceInfo)
     {
-        console.log(info);
+        // console.log(info);
         super.handleState(info);
 
         if(this.actuatorChannel) {

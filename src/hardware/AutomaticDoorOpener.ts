@@ -1,7 +1,7 @@
 import {SubDevice} from "../SubDevice";
 import {Connection} from "../Connection";
 import {FunctionId} from "../FunctionId";
-import {PairingId} from "../PairingId";
+// import {PairingId} from "../PairingId";
 
 
 export enum AutomaticDoorOpenerEvent {
@@ -24,10 +24,10 @@ export class AutomaticDoorOpener extends SubDevice
 
     private active:boolean = false;
     private readonly actuatorDatapoint: string = 'idp0000';
-    private readonly actuatorDatapointPairingId: PairingId = PairingId.AL_SWITCH_ON_OFF;
+    // private readonly actuatorDatapointPairingId: PairingId = PairingId.AL_SWITCH_ON_OFF;
 
     private readonly sensorDatapoint: string = 'odp0000';
-    private readonly sensorDatapointPairingId: PairingId = PairingId.AL_INFO_ON_OFF;
+    // private readonly sensorDatapointPairingId: PairingId = PairingId.AL_INFO_ON_OFF;
 
     private readonly activeValue:string = '1';
     private readonly inactiveValue:string = '0';
@@ -36,10 +36,10 @@ export class AutomaticDoorOpener extends SubDevice
     {
         super(connection, serialNumber, channel);
 
-        this.on(AutomaticDoorOpenerEvent.ENABLE, () => {console.log(this.displayName, 'Automatic door opener enabling')});
-        this.on(AutomaticDoorOpenerEvent.DISABLE, () => {console.log(this.displayName, 'Automatic door opener disabling')});
-        this.on(AutomaticDoorOpenerEvent.ENABLED, () => {console.log(this.displayName, 'Automatic door opener enabled')});
-        this.on(AutomaticDoorOpenerEvent.DISABLED, () => {console.log(this.displayName, 'Automatic door opener disabled')});
+        // this.on(AutomaticDoorOpenerEvent.ENABLE, () => {console.log(this.displayName, 'Automatic door opener enabling')});
+        // this.on(AutomaticDoorOpenerEvent.DISABLE, () => {console.log(this.displayName, 'Automatic door opener disabling')});
+        // this.on(AutomaticDoorOpenerEvent.ENABLED, () => {console.log(this.displayName, 'Automatic door opener enabled')});
+        // this.on(AutomaticDoorOpenerEvent.DISABLED, () => {console.log(this.displayName, 'Automatic door opener disabled')});
     }
 
     public enable(): void
@@ -77,7 +77,7 @@ export class AutomaticDoorOpener extends SubDevice
     {
         super.handleChannelState(datapoints);
 
-        console.log(this.constructor.name, 'handleChannelState', datapoints[this.actuatorDatapoint]);
+        // console.log(this.constructor.name, 'handleChannelState', datapoints[this.actuatorDatapoint]);
         if(datapoints[this.actuatorDatapoint] == this.activeValue) {
             this.active = true;
         } else if(datapoints[this.actuatorDatapoint] == this.inactiveValue) {

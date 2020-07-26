@@ -2,7 +2,7 @@ import {Connection, DeviceInfo} from './Connection';
 import {EventEmitter} from 'events';
 
 export class Device extends EventEmitter {
-    protected connection: Connection;
+    public readonly connection: Connection;
     public readonly serialNumber: string;
     protected readonly logger = console;
 
@@ -31,9 +31,10 @@ export class Device extends EventEmitter {
 
     public handleState(info: DeviceInfo) {
       this.displayName = info.typeName;
-      this.logger.log(this.displayName);
+      // this.logger.log(this.displayName);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     public handleUpdate(info: DeviceInfo) {
       // this.logger.info('update', info);
     }

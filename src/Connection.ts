@@ -2,6 +2,7 @@ import { ClientConfiguration, Logger, SystemAccessPoint } from 'freeathome-api';
 import { Subscriber } from 'freeathome-api/dist/lib/Subscriber';
 import { BroadcastMessage } from 'freeathome-api/dist/lib/BroadcastMessage';
 import {EventEmitter} from 'events';
+import Timeout = NodeJS.Timeout;
 
 export enum ConnectionEvent
 {
@@ -46,13 +47,26 @@ export type ChannelInfo = {
  * @event ConnectionEvent.BROADCAST
  */
 export class Connection extends EventEmitter implements Subscriber, Logger {
+    private readonly sysAccessPoint: SystemAccessPoint;
+    private readonly logger = console;
+    private readonly debugEnabled = false;
+
     private connected = false;
     private ready = false;
-    private sysAccessPoint: SystemAccessPoint;
-    private logger = console;
 
-    constructor(config: ClientConfiguration) {
+    private autoReconnect = false;
+    private _lastUpdate?: Date;
+    private silenceTimeoutId?: Timeout;
+    private readonly silenceTimeoutDuration = 60 * 1000;
+
+    public get lastUpdate(): Date|undefined {
+      return this._lastUpdate;
+    }
+
+    constructor(config: ClientConfiguration, autoReconnect = false) {
       super();
+
+      this.autoReconnect = autoReconnect;
 
       this.sysAccessPoint = new SystemAccessPoint(
         config,
@@ -92,6 +106,9 @@ export class Connection extends EventEmitter implements Subscriber, Logger {
     async onReady() {
       const devices: Devices = await this.listDevices();
       this.emit(ConnectionEvent.DEVICES, devices);
+
+      this._lastUpdate = new Date();
+      this.breakSilence();
     }
 
     async listDevices() {
@@ -106,7 +123,15 @@ export class Connection extends EventEmitter implements Subscriber, Logger {
     }
 
     broadcastMessage(message: BroadcastMessage): void {
+      // console.log('broadcast', message);
       this.emit(ConnectionEvent.BROADCAST, message);
+
+
+      if(this._lastUpdate !== null) {
+        const difference = new Date().getTime() - this._lastUpdate.getTime();
+        this.logger.log('last log', this._lastUpdate, 'duration:', (difference / 1000), 'seconds ago');
+      }
+      this.breakSilence();
     }
 
     public setDatapoint(serialNo: string, channel: string, datapoint: string, value: string) {
@@ -114,22 +139,45 @@ export class Connection extends EventEmitter implements Subscriber, Logger {
     }
 
     // Logger
-    debugEnabled = false;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     debug(...messages: string[] | number[] | Record<string, any>[]): void {
       if(this.debugEnabled) {
         this.logger.log('debug', messages);
       }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     error(...messages: string[] | number[] | Record<string, any>[]): void {
       this.logger.error('error', messages);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async log(...messages: string[] | number[] | Record<string, any>[]) {
+      this.logger.log(messages);
       if(messages && messages[0] === 'Sent Subscription Confirmation') {
         this.ready = true;
         this.emit(ConnectionEvent.READY);
         await this.listDevices();
       }
+    }
+
+    // self-reconnecting
+    private breakSilence() {
+      if(this.silenceTimeoutId !== undefined) {
+        clearTimeout(this.silenceTimeoutId);
+      }
+
+      this.silenceTimeoutId = setTimeout(this.handleSilenceTimout.bind(this), this.silenceTimeoutDuration);
+      this._lastUpdate = new Date();
+    }
+
+    private async handleSilenceTimout() {
+      this.logger.log('Didn\'t hear back for ' + this.silenceTimeoutDuration + 'ms',
+        'with last update on ', this._lastUpdate,
+        'reconnecting now');
+
+      await this.stop();
+
+      await this.start();
     }
 }

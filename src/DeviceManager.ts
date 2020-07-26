@@ -23,14 +23,14 @@ export class DeviceManager extends EventEmitter {
 
     private logger = console;
 
-    constructor(config: ClientConfiguration) {
+    constructor(config: ClientConfiguration, autoReconnect = false) {
       super();
 
-      this.connection = new Connection(config);
+      this.connection = new Connection(config, autoReconnect);
 
-      this.connection.on(ConnectionEvent.READY, ()=>{
-        this.logger.log('Ready');
-      });
+      // this.connection.on(ConnectionEvent.READY, ()=>{
+      //   this.logger.log('Ready');
+      // });
       this.connection.on(ConnectionEvent.DEVICES, this.handleDevices.bind(this));
       this.connection.on(ConnectionEvent.BROADCAST, this.handleUpdate.bind(this));
 
@@ -38,6 +38,11 @@ export class DeviceManager extends EventEmitter {
     }
 
     private handleDevices(devices: Devices) {
+
+      // reset
+      this.devices = [];
+      this.allDevices = [];
+
       for (const deviceSerial in devices) {
         const info: DeviceInfo = devices[deviceSerial];
         const device: Device | undefined = this.createDevice(info.serialNumber, info.deviceId);
@@ -57,7 +62,7 @@ export class DeviceManager extends EventEmitter {
             });
           }
         } else {
-          this.logger.log(info);
+          this.logger.log('uninstantiable device', info);
         }
       }
 

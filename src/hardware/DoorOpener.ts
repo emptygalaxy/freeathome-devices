@@ -1,7 +1,7 @@
 import {Connection} from "../Connection";
 import {DeviceEvent, SubDevice} from "../SubDevice";
 import {FunctionId} from "../FunctionId";
-import {PairingId} from "../PairingId";
+// import {PairingId} from "../PairingId";
 
 export enum DoorOpenerEvent{
     OPEN = 'open',
@@ -45,7 +45,7 @@ export class DoorOpener extends SubDevice
 
     public open()
     {
-        console.log(this.getRoom(), 'open');
+        // console.log(this.getRoom(), 'open');
         this._isOpening = true;
         this.emit(DoorOpenerEvent.OPEN);
         this.changed();
@@ -55,7 +55,7 @@ export class DoorOpener extends SubDevice
 
     private opening()
     {
-        console.log(this.getRoom(), 'opening');
+        // console.log(this.getRoom(), 'opening');
         this._isOpening = true;
 
         this.emit(DoorOpenerEvent.OPEN);
@@ -64,7 +64,7 @@ export class DoorOpener extends SubDevice
 
     private opened()
     {
-        console.log(this.getRoom(), 'opened');
+        // console.log(this.getRoom(), 'opened');
         this._isOpening = false;
         this._isOpen = true;
 
@@ -74,7 +74,7 @@ export class DoorOpener extends SubDevice
 
     public close()
     {
-        console.log(this.getRoom(), 'close');
+        // console.log(this.getRoom(), 'close');
         this._isOpening = false;
 
         this.emit(DoorOpenerEvent.CLOSE);
@@ -85,7 +85,7 @@ export class DoorOpener extends SubDevice
 
     private closing()
     {
-        console.log(this.getRoom(), 'closing');
+        // console.log(this.getRoom(), 'closing');
         this._isOpening = false;
 
         this.emit(DoorOpenerEvent.CLOSE);
@@ -94,7 +94,7 @@ export class DoorOpener extends SubDevice
 
     private closed()
     {
-        console.log(this.getRoom(), 'closed');
+        // console.log(this.getRoom(), 'closed');
         this._isOpening = false;
         this._isOpen = false;
 
