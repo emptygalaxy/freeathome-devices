@@ -152,6 +152,11 @@ export class Connection extends EventEmitter implements Subscriber, Logger {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    warn(...messages: string[] | number[] | Record<string, any>[]): void {
+        this.logger.warn('warn', messages);
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async log(...messages: string[] | number[] | Record<string, any>[]) {
       this.logger.log(messages);
       if(messages && messages[0] === 'Sent Subscription Confirmation') {
