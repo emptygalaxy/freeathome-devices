@@ -173,11 +173,13 @@ export class Connection extends EventEmitter implements Subscriber, Logger {
 
     private async handleSilenceTimout() {
       this.logger.log('Didn\'t hear back for ' + this.silenceTimeoutDuration + 'ms',
-        'with last update on ', this._lastUpdate,
-        'reconnecting now');
+        'with last update on ', this._lastUpdate);
+      if(this.autoReconnect) {
+        this.logger.log('reconnecting now');
 
-      await this.stop();
+        await this.stop();
 
-      await this.start();
+        await this.start();
+      }
     }
 }
