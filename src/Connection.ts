@@ -47,6 +47,7 @@ export type ChannelInfo = {
  * @event ConnectionEvent.BROADCAST
  */
 export class Connection extends EventEmitter implements Subscriber, Logger {
+    private readonly config: ClientConfiguration;
     private readonly sysAccessPoint: SystemAccessPoint;
     private readonly logger = console;
     public debugEnabled = false;
@@ -66,6 +67,7 @@ export class Connection extends EventEmitter implements Subscriber, Logger {
     constructor(config: ClientConfiguration, autoReconnect = false) {
       super();
 
+      this.config = config;
       this.autoReconnect = autoReconnect;
 
       this.sysAccessPoint = new SystemAccessPoint(
@@ -153,7 +155,7 @@ export class Connection extends EventEmitter implements Subscriber, Logger {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     warn(...messages: string[] | number[] | Record<string, any>[]): void {
-        this.logger.warn('warn', messages);
+      this.logger.warn('warn', messages);
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -179,6 +181,9 @@ export class Connection extends EventEmitter implements Subscriber, Logger {
     private async handleSilenceTimout() {
       this.logger.log('Didn\'t hear back for ' + this.silenceTimeoutDuration + 'ms',
         'with last update on ', this._lastUpdate);
+
+      const webUrl = 'http://' + this.config.hostname;
+      this.logger.log('Please log in and out of the web interface on', webUrl);
       if(this.autoReconnect) {
         this.logger.log('reconnecting now');
 
