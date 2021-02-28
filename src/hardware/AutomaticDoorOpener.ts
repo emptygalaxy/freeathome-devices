@@ -1,6 +1,7 @@
 import {SubDevice} from "../SubDevice";
 import {Connection} from "../Connection";
 import {FunctionId} from "../FunctionId";
+import {MqttClient} from "mqtt";
 // import {PairingId} from "../PairingId";
 
 
@@ -32,9 +33,9 @@ export class AutomaticDoorOpener extends SubDevice
     private readonly activeValue:string = '1';
     private readonly inactiveValue:string = '0';
 
-    constructor(connection:Connection, serialNumber:string, channel:number)
+    constructor(connection:Connection, serialNumber:string, channel:number, mqttClient?: MqttClient)
     {
-        super(connection, serialNumber, channel);
+        super(connection, serialNumber, channel, mqttClient);
 
         // this.on(AutomaticDoorOpenerEvent.ENABLE, () => {console.log(this.displayName, 'Automatic door opener enabling')});
         // this.on(AutomaticDoorOpenerEvent.DISABLE, () => {console.log(this.displayName, 'Automatic door opener disabling')});
@@ -103,5 +104,14 @@ export class AutomaticDoorOpener extends SubDevice
         } else {
             console.log(this.serialNumber, this.channel.toString(16), 'unknown actuatorDatapoint value', datapoints);
         }
+    }
+
+    public changed(): void {
+        super.changed();
+
+        this.mqttClient?.publish(
+            ['freeathome', this.serialNumber, 'automaticdooropener', this.channel].join('/'),
+            this.isEnabled()?'on':'off'
+        );
     }
 }

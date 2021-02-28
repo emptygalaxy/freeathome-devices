@@ -1,6 +1,7 @@
 import {Connection} from "../Connection";
 import {DeviceEvent, SubDevice} from "../SubDevice";
 import {FunctionId} from "../FunctionId";
+import {MqttClient} from "mqtt";
 // import {PairingId} from "../PairingId";
 
 export enum DoorOpenerEvent{
@@ -32,9 +33,9 @@ export class DoorOpener extends SubDevice
     private readonly openValue: string = '1';
     private readonly closeValue: string = '0';
 
-    constructor(connection:Connection, serialNumber:string, channel:number)
+    constructor(connection:Connection, serialNumber:string, channel:number, mqttClient?: MqttClient)
     {
-        super(connection, serialNumber, channel);
+        super(connection, serialNumber, channel, mqttClient);
 
         // this.on(DoorOpenerEvent.OPEN, () => {console.log(this.displayName, 'Door opening')});
         // this.on(DoorOpenerEvent.CLOSE, () => {console.log(this.displayName, 'Door closing')});
@@ -142,5 +143,14 @@ export class DoorOpener extends SubDevice
         } else {
             console.log(this.serialNumber, this.channel, 'unknown datapoint value', datapoints);
         }
+    }
+
+    public changed(): void {
+        super.changed();
+
+        this.mqttClient?.publish(
+            ['freeathome', this.serialNumber, 'dooropener', this.channel].join('/'),
+            this._isOpen?'open':'closed'
+        );
     }
 }

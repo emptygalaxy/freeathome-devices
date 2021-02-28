@@ -6,7 +6,8 @@ import {BridgeDevice} from './hardware/BridgeDevice';
 
 // const config: ClientConfiguration = require('../sysap.json');
 import * as config from './sysap.json';
-const dm = new DeviceManager(config, true);
+import * as mqtt from './mqtt.json';
+const dm = new DeviceManager(config, true, mqtt);
 
 const logger = console;
 

@@ -13,6 +13,7 @@ import {FunctionId} from './FunctionId';
 import {DeviceTypeId} from './DeviceTypeId';
 import {DeviceType} from './DeviceType';
 import {EventEmitter} from 'events';
+import {MqttClient, connect, IClientOptions} from 'mqtt';
 
 export class DeviceManager extends EventEmitter {
     private readonly connection: Connection;
@@ -21,9 +22,11 @@ export class DeviceManager extends EventEmitter {
     private devices: Device[] = [];
     private allDevices: Device[] = [];
 
+    private mqttClient?: MqttClient;
+
     private logger = console;
 
-    constructor(config: ClientConfiguration, autoReconnect = false) {
+    constructor(config: ClientConfiguration, autoReconnect = false, mqtt?: IClientOptions) {
       super();
 
       this.connection = new Connection(config, autoReconnect);
@@ -33,6 +36,11 @@ export class DeviceManager extends EventEmitter {
       // });
       this.connection.on(ConnectionEvent.DEVICES, this.handleDevices.bind(this));
       this.connection.on(ConnectionEvent.BROADCAST, this.handleUpdate.bind(this));
+
+      // setup mqtt
+      if(mqtt) {
+        this.mqttClient = connect(mqtt);
+      }
 
       this.connection.start();
     }
@@ -72,10 +80,10 @@ export class DeviceManager extends EventEmitter {
 
     private handleUpdate(message: BroadcastMessage) {
       const devices: Devices = message.result;
-      for(const deviceSerial in devices) {
+      for (const deviceSerial in devices) {
         const info: DeviceInfo = devices[deviceSerial];
         this.allDevices.forEach((device: Device) => {
-          if(device.serialNumber === deviceSerial) {
+          if (device.serialNumber === deviceSerial) {
             device.handleUpdate(info);
           }
         });
@@ -92,20 +100,20 @@ export class DeviceManager extends EventEmitter {
       return this.devices;
     }
 
-    public getDevicesWithFunction(functionId: FunctionId|SupportedFunctionId): Device[] {
+    public getDevicesWithFunction(functionId: FunctionId | SupportedFunctionId): Device[] {
       return this.allDevices.filter((device: Device) => {
         return device instanceof SubDevice && device.getFunctionId() === functionId;
       });
     }
 
-    public getDevice(serialNumber: string, channel: number): SubDevice|null {
+    public getDevice(serialNumber: string, channel: number): SubDevice | null {
       const l = this.allDevices.length;
-      for(let i=0; i<l; i++) {
+      for (let i = 0; i < l; i++) {
         const device: Device = this.devices[i];
-        if(device.serialNumber === serialNumber) {
-          if(channel && device instanceof SubDevice) {
+        if (device.serialNumber === serialNumber) {
+          if (channel && device instanceof SubDevice) {
             const subDevice: SubDevice = device as SubDevice;
-            if(subDevice.channel === channel) {
+            if (subDevice.channel === channel) {
               return subDevice;
             }
           }
@@ -114,26 +122,26 @@ export class DeviceManager extends EventEmitter {
       return null;
     }
 
-    private createDevice(serialNumber: string, typeId: string): Device|undefined {
-      const deviceType: DeviceType|undefined = DeviceManager.getDeviceType(typeId);
-      switch(deviceType) {
+    private createDevice(serialNumber: string, typeId: string): Device | undefined {
+      const deviceType: DeviceType | undefined = DeviceManager.getDeviceType(typeId);
+      switch (deviceType) {
         case DeviceType.HomeTouch:
-          return new HomeTouchPanel(this.connection, serialNumber);
+          return new HomeTouchPanel(this.connection, serialNumber, this.mqttClient);
 
         case DeviceType.BinarySensory:
-          return new BinarySensorDevice(this.connection, serialNumber, 1);
+          return new BinarySensorDevice(this.connection, serialNumber, 1, this.mqttClient);
 
         case DeviceType.SchakelAktor:
-          return new SchakelAktorDevice(this.connection, serialNumber, 1);
+          return new SchakelAktorDevice(this.connection, serialNumber, 1, this.mqttClient);
 
         case DeviceType.Jalousie:
-          return new JalousieDevice(this.connection, serialNumber, 1);
+          return new JalousieDevice(this.connection, serialNumber, 1, this.mqttClient);
 
         case DeviceType.Thermostat:
-          return new ThermostatDevice(this.connection, serialNumber, 1);
+          return new ThermostatDevice(this.connection, serialNumber, 1, this.mqttClient);
 
         case DeviceType.SystemAccessPoint:
-          return new SysAP(this.connection, serialNumber);
+          return new SysAP(this.connection, serialNumber, this.mqttClient);
 
         default:
           this.logger.log(serialNumber, typeId);
@@ -141,10 +149,10 @@ export class DeviceManager extends EventEmitter {
       }
     }
 
-    private static getDeviceType(typeId: string): DeviceType|undefined {
+    private static getDeviceType(typeId: string): DeviceType | undefined {
       const typeNumber: number = Number.parseInt(typeId, 16);
 
-      switch(typeNumber) {
+      switch (typeNumber) {
         case DeviceTypeId.SysAP:
         case DeviceTypeId.CommunicationInterface1:
         case DeviceTypeId.CommunicationInterface2:
@@ -190,8 +198,7 @@ export class DeviceManager extends EventEmitter {
     }
 }
 
-export enum SupportedFunctionId
-{
+export enum SupportedFunctionId {
     DOOR_OPENER_ACTUATOR = FunctionId.FID_DES_DOOR_OPENER_ACTUATOR,
     AUTOMATIC_DOOR_OPENER_ACTUATOR = FunctionId.FID_DES_AUTOMATIC_DOOR_OPENER_ACTUATOR,
     LEVEL_CALL_ACTUATOR = FunctionId.FID_DES_LEVEL_CALL_ACTUATOR,

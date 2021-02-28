@@ -5,6 +5,7 @@ import {Light} from "./Light";
 import {AutomaticDoorOpener} from "./AutomaticDoorOpener";
 import {BridgeDevice} from "./BridgeDevice";
 import {FunctionId} from "../FunctionId";
+import {MqttClient} from "mqtt";
 
 export class HomeTouchPanel extends BridgeDevice
 {
@@ -31,32 +32,32 @@ export class HomeTouchPanel extends BridgeDevice
     public readonly callLevelDoorCall:DoorCall;
     public readonly automaticDoorOpener:AutomaticDoorOpener;
 
-    constructor(connection:Connection, serialNumber:string)
+    constructor(connection:Connection, serialNumber:string, mqttClient?: MqttClient)
     {
-        super(connection, serialNumber);
+        super(connection, serialNumber, mqttClient);
 
-        this.hallwayLight = new Light(connection, serialNumber, HomeTouchPanelChannels.CORRIDOR_LIGHT);
+        this.hallwayLight = new Light(connection, serialNumber, HomeTouchPanelChannels.CORRIDOR_LIGHT, this.mqttClient);
         this.devices.push(this.hallwayLight);
 
-        this.doorOpener1 = new DoorOpener(connection, serialNumber, HomeTouchPanelChannels.DOOR_OPENER_1);
-        this.doorOpener2 = new DoorOpener(connection, serialNumber, HomeTouchPanelChannels.DOOR_OPENER_2);
-        this.doorOpener3 = new DoorOpener(connection, serialNumber, HomeTouchPanelChannels.DOOR_OPENER_3);
-        this.doorOpener4 = new DoorOpener(connection, serialNumber, HomeTouchPanelChannels.DOOR_OPENER_4);
+        this.doorOpener1 = new DoorOpener(connection, serialNumber, HomeTouchPanelChannels.DOOR_OPENER_1, this.mqttClient);
+        this.doorOpener2 = new DoorOpener(connection, serialNumber, HomeTouchPanelChannels.DOOR_OPENER_2, this.mqttClient);
+        this.doorOpener3 = new DoorOpener(connection, serialNumber, HomeTouchPanelChannels.DOOR_OPENER_3, this.mqttClient);
+        this.doorOpener4 = new DoorOpener(connection, serialNumber, HomeTouchPanelChannels.DOOR_OPENER_4, this.mqttClient);
         this.devices.push(this.doorOpener1, this.doorOpener2, this.doorOpener3, this.doorOpener4);
 
-        this.defaultDoorOpener = new DoorOpener(connection, serialNumber, HomeTouchPanelChannels.DOOR_OPENER_DEFAULT);
+        this.defaultDoorOpener = new DoorOpener(connection, serialNumber, HomeTouchPanelChannels.DOOR_OPENER_DEFAULT, this.mqttClient);
         this.devices.push(this.defaultDoorOpener);
 
-        this.doorCall1 = new DoorCall(connection, serialNumber, this.doorOpener1, HomeTouchPanelChannels.DOOR_CALL_1);
-        this.doorCall2 = new DoorCall(connection, serialNumber, this.doorOpener2, HomeTouchPanelChannels.DOOR_CALL_2);
-        this.doorCall3 = new DoorCall(connection, serialNumber, this.doorOpener3, HomeTouchPanelChannels.DOOR_CALL_3);
-        this.doorCall4 = new DoorCall(connection, serialNumber, this.doorOpener4, HomeTouchPanelChannels.DOOR_CALL_4);
+        this.doorCall1 = new DoorCall(connection, serialNumber, this.doorOpener1, HomeTouchPanelChannels.DOOR_CALL_1, undefined, this.mqttClient);
+        this.doorCall2 = new DoorCall(connection, serialNumber, this.doorOpener2, HomeTouchPanelChannels.DOOR_CALL_2, undefined, this.mqttClient);
+        this.doorCall3 = new DoorCall(connection, serialNumber, this.doorOpener3, HomeTouchPanelChannels.DOOR_CALL_3, undefined, this.mqttClient);
+        this.doorCall4 = new DoorCall(connection, serialNumber, this.doorOpener4, HomeTouchPanelChannels.DOOR_CALL_4, undefined, this.mqttClient);
         this.devices.push(this.doorCall1, this.doorCall2, this.doorCall3, this.doorCall4);
 
-        this.automaticDoorOpener = new AutomaticDoorOpener(connection, serialNumber, HomeTouchPanelChannels.AUTOMATIC_DOOR_OPENER);
+        this.automaticDoorOpener = new AutomaticDoorOpener(connection, serialNumber, HomeTouchPanelChannels.AUTOMATIC_DOOR_OPENER, this.mqttClient);
         this.devices.push(this.automaticDoorOpener);
 
-        this.callLevelDoorCall = new DoorCall(connection, serialNumber, undefined, HomeTouchPanelChannels.DOOR_ENTRY_SYSTEM_CALL_LEVEL_SENSOR, HomeTouchPanelChannels.DOOR_ENTRY_SYSTEM_CALL_LEVEL_ACTUATOR);
+        this.callLevelDoorCall = new DoorCall(connection, serialNumber, undefined, HomeTouchPanelChannels.DOOR_ENTRY_SYSTEM_CALL_LEVEL_SENSOR, HomeTouchPanelChannels.DOOR_ENTRY_SYSTEM_CALL_LEVEL_ACTUATOR, this.mqttClient);
         this.devices.push(this.callLevelDoorCall);
     }
 

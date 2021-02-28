@@ -1,20 +1,20 @@
 import {Connection, DeviceInfo} from './Connection';
 import {EventEmitter} from 'events';
+import {MqttClient} from 'mqtt';
 
 export class Device extends EventEmitter {
-    public readonly connection: Connection;
-    public readonly serialNumber: string;
     protected readonly logger = console;
 
     protected displayName?: string;
     protected floor?: string;
     protected room?: string;
 
-    constructor(connection: Connection, serialNumber: string) {
+    constructor(
+        public readonly connection: Connection,
+        public readonly serialNumber: string,
+        protected readonly mqttClient?: MqttClient,
+    ) {
       super();
-
-      this.connection = connection;
-      this.serialNumber = serialNumber;
     }
 
     public getDisplayName(): string|undefined {

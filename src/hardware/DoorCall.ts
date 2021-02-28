@@ -2,6 +2,7 @@ import {ChannelInfo, Connection, DeviceInfo} from "../Connection";
 import {SubDevice} from "../SubDevice";
 import {DoorOpener} from "./DoorOpener";
 import {FunctionId} from "../FunctionId";
+import {MqttClient} from "mqtt";
 // import {PairingId} from "../PairingId";
 
 
@@ -30,9 +31,9 @@ export  class DoorCall extends SubDevice
     // private readonly actuatorDataPointPairingId: PairingId = PairingId.AL_INFO_ON_OFF;
     private readonly actuatorValue:string = '1';
 
-    constructor(connection:Connection, serialNumber:string, doorOpener:DoorOpener|undefined, channel:number, actuatorChannel?:number)
+    constructor(connection:Connection, serialNumber:string, doorOpener:DoorOpener|undefined, channel:number, actuatorChannel?:number, mqttClient?: MqttClient)
     {
-        super(connection, serialNumber, channel);
+        super(connection, serialNumber, channel, mqttClient);
 
         this.doorOpener = doorOpener;
         this.actuatorChannel = actuatorChannel;
@@ -69,6 +70,11 @@ export  class DoorCall extends SubDevice
     private triggered()
     {
         this.emit(DoorCallEvent.TRIGGERED);
+
+        this.mqttClient?.publish(
+            ['freeathome', this.serialNumber, 'doorcall', this.channel].join('/'),
+            'call'
+        );
     }
 
     public handleState(info: DeviceInfo)

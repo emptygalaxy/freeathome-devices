@@ -1,7 +1,8 @@
 import {Connection} from "../Connection";
 import {SubDevice} from "../SubDevice";
 import {FunctionId} from "../FunctionId";
-import {PairingId} from "../PairingId";
+// import {PairingId} from "../PairingId";
+import {MqttClient} from "mqtt";
 
 export enum SchakelAktorEvent
 {
@@ -17,17 +18,17 @@ export class SchakelAktor extends SubDevice
 
     protected active:boolean = false;
     private readonly sensorDatapoint:string = 'odp0000';
-    private readonly sensorDataPointPairingId: PairingId = PairingId.AL_TIMED_START_STOP;
+    // private readonly sensorDataPointPairingId: PairingId = PairingId.AL_TIMED_START_STOP;
 
     private readonly actuatorDatapoint:string = 'idp0000';
-    private readonly actuatorDataPointPairingId: PairingId = PairingId.AL_SWITCH_ON_OFF;
+    // private readonly actuatorDataPointPairingId: PairingId = PairingId.AL_SWITCH_ON_OFF;
 
     private readonly onValue:string = '1';
     private readonly offValue:string = '0';
 
-    constructor(connection:Connection, serialNumber:string, channel:number)
+    constructor(connection:Connection, serialNumber:string, channel:number, mqttClient?: MqttClient)
     {
-        super(connection, serialNumber, channel);
+        super(connection, serialNumber, channel, mqttClient);
 
         // this.on(SchakelAktorEvent.TURN_ON, () => {console.log(this.displayName, 'SchakelAktor turning on')});
         // this.on(SchakelAktorEvent.TURNED_ON, () => {console.log(this.displayName, 'SchakelAktor turned on')});
