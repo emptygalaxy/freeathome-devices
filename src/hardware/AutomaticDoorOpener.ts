@@ -37,16 +37,16 @@ export class AutomaticDoorOpener extends SubDevice
     {
         super(connection, serialNumber, channel, mqttClient);
 
-        // this.on(AutomaticDoorOpenerEvent.ENABLE, () => {console.log(this.displayName, 'Automatic door opener enabling')});
-        // this.on(AutomaticDoorOpenerEvent.DISABLE, () => {console.log(this.displayName, 'Automatic door opener disabling')});
-        // this.on(AutomaticDoorOpenerEvent.ENABLED, () => {console.log(this.displayName, 'Automatic door opener enabled')});
-        // this.on(AutomaticDoorOpenerEvent.DISABLED, () => {console.log(this.displayName, 'Automatic door opener disabled')});
+        // this.on(AutomaticDoorOpenerEvent.ENABLE, () => {this.logger?.log(this.displayName, 'Automatic door opener enabling')});
+        // this.on(AutomaticDoorOpenerEvent.DISABLE, () => {this.logger?.log(this.displayName, 'Automatic door opener disabling')});
+        // this.on(AutomaticDoorOpenerEvent.ENABLED, () => {this.logger?.log(this.displayName, 'Automatic door opener enabled')});
+        // this.on(AutomaticDoorOpenerEvent.DISABLED, () => {this.logger?.log(this.displayName, 'Automatic door opener disabled')});
     }
 
-    public enable(): void
+    public async enable(): Promise<void>
     {
         this.emit(AutomaticDoorOpenerEvent.ENABLE);
-        this.setDatapoint(this.channel, this.actuatorDatapoint, this.activeValue);
+        await this.setDatapoint(this.channel, this.actuatorDatapoint, this.activeValue);
     }
 
     private enabled(): void
@@ -56,10 +56,10 @@ export class AutomaticDoorOpener extends SubDevice
         this.changed();
     }
 
-    public disable(): void
+    public async disable(): Promise<void>
     {
         this.emit(AutomaticDoorOpenerEvent.DISABLE);
-        this.setDatapoint(this.channel, this.actuatorDatapoint, this.inactiveValue);
+        await this.setDatapoint(this.channel, this.actuatorDatapoint, this.inactiveValue);
     }
 
     private disabled(): void
@@ -78,13 +78,13 @@ export class AutomaticDoorOpener extends SubDevice
     {
         super.handleChannelState(datapoints);
 
-        // console.log(this.constructor.name, 'handleChannelState', datapoints[this.actuatorDatapoint]);
+        // this.logger?.log(this.constructor.name, 'handleChannelState', datapoints[this.actuatorDatapoint]);
         if(datapoints[this.actuatorDatapoint] == this.activeValue) {
             this.active = true;
         } else if(datapoints[this.actuatorDatapoint] == this.inactiveValue) {
             this.active = false;
         } else {
-            console.log(this.serialNumber, this.channel.toString(16), 'unknown initial actuatorDatapoint value', datapoints);
+            this.logger?.log(this.serialNumber, this.channel.toString(16), 'unknown initial actuatorDatapoint value', datapoints);
         }
     }
 
@@ -102,7 +102,7 @@ export class AutomaticDoorOpener extends SubDevice
         } else if(datapoints[this.sensorDatapoint] == this.inactiveValue) { // disabled confirmation
             this.disabled();
         } else {
-            console.log(this.serialNumber, this.channel.toString(16), 'unknown actuatorDatapoint value', datapoints);
+            this.logger?.log(this.serialNumber, this.channel.toString(16), 'unknown actuatorDatapoint value', datapoints);
         }
     }
 

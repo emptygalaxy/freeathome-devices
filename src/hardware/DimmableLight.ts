@@ -31,10 +31,10 @@ export class DimmableLight extends Light
         return this.brightness;
     }
 
-    public setBrightness(brightness:number): void
+    public async setBrightness(brightness:number): Promise<void>
     {
         this.brightness = brightness;
-        this.setDatapoint(this.channel, this.brightnessDataPointSet, Math.round(this.brightness).toString());
+        await this.setDatapoint(this.channel, this.brightnessDataPointSet, Math.round(this.brightness).toString());
     }
 
     protected handleChannelState(datapoints:{[dp:string]: string}): void

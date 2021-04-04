@@ -6,6 +6,7 @@ import {AutomaticDoorOpener} from "./AutomaticDoorOpener";
 import {BridgeDevice} from "./BridgeDevice";
 import {FunctionId} from "../FunctionId";
 import {MqttClient} from "mqtt";
+import {LogInterface} from "../LogInterface";
 
 export class HomeTouchPanel extends BridgeDevice
 {
@@ -32,9 +33,9 @@ export class HomeTouchPanel extends BridgeDevice
     public readonly callLevelDoorCall:DoorCall;
     public readonly automaticDoorOpener:AutomaticDoorOpener;
 
-    constructor(connection:Connection, serialNumber:string, mqttClient?: MqttClient)
+    constructor(connection:Connection, serialNumber:string, mqttClient?: MqttClient, logger?: LogInterface)
     {
-        super(connection, serialNumber, mqttClient);
+        super(connection, serialNumber, mqttClient, logger);
 
         this.hallwayLight = new Light(connection, serialNumber, HomeTouchPanelChannels.CORRIDOR_LIGHT, this.mqttClient);
         this.devices.push(this.hallwayLight);
@@ -63,7 +64,7 @@ export class HomeTouchPanel extends BridgeDevice
 
     public handleUpdate(info: DeviceInfo) {
         super.handleUpdate(info);
-        console.log('HomeTouchPanel update', info);
+        this.logger?.info('HomeTouchPanel update', info);
     }
 }
 

@@ -1,7 +1,7 @@
 import {Connection} from "../Connection";
 import {SubDevice} from "../SubDevice";
-import {FunctionId} from "../FunctionId";
-import {PairingId} from "../PairingId";
+// import {FunctionId} from "../FunctionId";
+// import {PairingId} from "../PairingId";
 
 export enum BinarySensorEvent
 {
@@ -18,7 +18,7 @@ export class BinarySensor extends SubDevice
 {
     private active:boolean = false;
     private readonly datapoint:string = 'odp0000';
-    private readonly datapointPairingId: PairingId = PairingId.AL_SWITCH_ON_OFF;
+    // private readonly datapointPairingId: PairingId = PairingId.AL_SWITCH_ON_OFF;
 
     private readonly activeValue:string = '1';
     private readonly inactiveValue:string = '0';
@@ -27,8 +27,8 @@ export class BinarySensor extends SubDevice
     {
         super(connection, serialNumber, channel);
 
-        // this.on(BinarySensorEvent.ACTIVATED, () => {console.log(this.displayName, 'BinarySensor turned on')});
-        // this.on(BinarySensorEvent.DEACTIVATED, () => {console.log(this.displayName, 'BinarySensor turned off')});
+        // this.on(BinarySensorEvent.ACTIVATED, () => {this.logger?.log(this.displayName, 'BinarySensor turned on')});
+        // this.on(BinarySensorEvent.DEACTIVATED, () => {this.logger?.log(this.displayName, 'BinarySensor turned off')});
     }
 
     private activated(): void
@@ -59,7 +59,7 @@ export class BinarySensor extends SubDevice
         } else if(datapoints[this.datapoint] == this.inactiveValue) {
             this.active = false;
         } else {
-            console.log(this.serialNumber, this.channel.toString(16), 'unknown initial datapoint value', datapoints);
+            this.logger?.log(this.serialNumber, this.channel.toString(16), 'unknown initial datapoint value', datapoints);
         }
     }
 
@@ -72,7 +72,7 @@ export class BinarySensor extends SubDevice
         } else if(datapoints[this.datapoint] == this.inactiveValue) {
             this.deactivated();
         } else {
-            console.log(this.serialNumber, this.channel, 'unknown datapoint value', datapoints);
+            this.logger?.log(this.serialNumber, this.channel, 'unknown datapoint value', datapoints);
         }
     }
 }

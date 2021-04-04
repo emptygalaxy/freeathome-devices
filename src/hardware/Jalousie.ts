@@ -43,9 +43,9 @@ export class Jalousie extends SubDevice
         this.setDatapoint(this.channel, this.targetPositionDataPointSet, Math.round(this.targetPosition).toString());
     }
 
-    public hold(): void
+    public async hold(): Promise<void>
     {
-        this.setDatapoint(this.channel, this.currentPositionDataPointUpdate, '1');
+        await this.setDatapoint(this.channel, this.currentPositionDataPointUpdate, '1');
     }
 
     public isOpen(): boolean

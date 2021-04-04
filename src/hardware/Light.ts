@@ -19,28 +19,30 @@ export class Light extends SchakelAktor
     {
         super(connection, serialNumber, channel, mqttClient);
 
-        // this.on(LightEvent.TURNED_ON, () => {console.log(this.displayName, 'Light turned on')});
-        // this.on(LightEvent.TURNED_OFF, () => {console.log(this.displayName, 'Light turned off')});
+        // this.on(LightEvent.TURNED_ON, () => {this.logger?.log(this.displayName, 'Light turned on')});
+        // this.on(LightEvent.TURNED_OFF, () => {this.logger?.log(this.displayName, 'Light turned off')});
     }
 
-    public turnOn():void
+    public async turnOn(): Promise<void>
     {
         this.emit(LightEvent.TURN_ON);
+        await this.setDatapoint(this.channel, this.actuatorDatapoint, this.onValue);
     }
 
-    protected turnedOn():void
+    protected turnedOn(): void
     {
         this.active = true;
         this.emit(LightEvent.TURNED_ON);
         this.changed();
     }
 
-    public turnOff():void
+    public async turnOff(): Promise<void>
     {
         this.emit(LightEvent.TURN_OFF);
+        await this.setDatapoint(this.channel, this.actuatorDatapoint, this.offValue);
     }
 
-    protected turnedOff():void
+    protected turnedOff(): void
     {
         this.active = false;
         this.emit(LightEvent.TURNED_OFF);

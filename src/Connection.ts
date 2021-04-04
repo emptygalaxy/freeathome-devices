@@ -3,6 +3,7 @@ import { Subscriber } from 'freeathome-api/dist/lib/Subscriber';
 import { BroadcastMessage } from 'freeathome-api/dist/lib/BroadcastMessage';
 import {EventEmitter} from 'events';
 import Timeout = NodeJS.Timeout;
+import {LogInterface} from "./LogInterface";
 
 export enum ConnectionEvent
 {
@@ -47,15 +48,13 @@ export type ChannelInfo = {
  * @event ConnectionEvent.BROADCAST
  */
 export class Connection extends EventEmitter implements Subscriber, Logger {
-    private readonly config: ClientConfiguration;
     private readonly sysAccessPoint: SystemAccessPoint;
-    private readonly logger = console;
     public debugEnabled = false;
+    public infoEnabled = false;
 
     private connected = false;
     private ready = false;
 
-    private autoReconnect = false;
     private _lastUpdate?: Date;
     private silenceTimeoutId?: Timeout;
     private readonly silenceTimeoutDuration = 60 * 1000;
@@ -64,16 +63,18 @@ export class Connection extends EventEmitter implements Subscriber, Logger {
       return this._lastUpdate;
     }
 
-    constructor(config: ClientConfiguration, autoReconnect = false) {
+    constructor(
+        private readonly config: ClientConfiguration,
+        private readonly autoReconnect = false,
+        private readonly logger: LogInterface=console,
+    ) {
       super();
-
-      this.config = config;
-      this.autoReconnect = autoReconnect;
 
       this.sysAccessPoint = new SystemAccessPoint(
         config,
         this,
-        this);
+        this,
+      );
 
       // ready event
       this.on(ConnectionEvent.READY, this.onReady.bind(this));
@@ -129,15 +130,15 @@ export class Connection extends EventEmitter implements Subscriber, Logger {
       this.emit(ConnectionEvent.BROADCAST, message);
 
 
-      if(this._lastUpdate !== undefined) {
+      if(this._lastUpdate !== undefined && this.infoEnabled) {
         const difference = new Date().getTime() - this._lastUpdate.getTime();
         this.logger.log('last log', this._lastUpdate, 'duration:', (difference / 1000), 'seconds ago');
       }
       this.breakSilence();
     }
 
-    public setDatapoint(serialNo: string, channel: string, datapoint: string, value: string) {
-      this.sysAccessPoint.setDatapoint(serialNo, channel, datapoint, value);
+    public async setDatapoint(serialNo: string, channel: string, datapoint: string, value: string): Promise<void> {
+      await this.sysAccessPoint.setDatapoint(serialNo, channel, datapoint, value);
     }
 
     // Logger
@@ -151,6 +152,14 @@ export class Connection extends EventEmitter implements Subscriber, Logger {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     error(...messages: string[] | number[] | Record<string, any>[]): void {
       this.logger.error('error', messages);
+
+
+      if(messages && messages.length > 0 && messages[0] === 'not paired' && this.autoReconnect) {
+          // reconnect automatically
+          this.reconnect().then(() => {
+              this.logger.info('reconnected');
+          });
+      }
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -160,7 +169,7 @@ export class Connection extends EventEmitter implements Subscriber, Logger {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async log(...messages: string[] | number[] | Record<string, any>[]) {
-      this.logger.log(messages);
+      this.logger.log('messages', messages);
       if(messages && messages[0] === 'Sent Subscription Confirmation') {
         this.ready = true;
         this.emit(ConnectionEvent.READY);
@@ -185,11 +194,13 @@ export class Connection extends EventEmitter implements Subscriber, Logger {
       const webUrl = 'http://' + this.config.hostname;
       this.logger.log('Please log in and out of the web interface on', webUrl);
       if(this.autoReconnect) {
-        this.logger.log('reconnecting now');
-
-        await this.stop();
-
-        await this.start();
+          await this.reconnect();
       }
+    }
+
+    private async reconnect(): Promise<void> {
+        this.logger.log('reconnecting now');
+        await this.stop();
+        await this.start();
     }
 }

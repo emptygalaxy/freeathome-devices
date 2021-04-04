@@ -14,6 +14,7 @@ import {DeviceTypeId} from './DeviceTypeId';
 import {DeviceType} from './DeviceType';
 import {EventEmitter} from 'events';
 import {MqttClient, connect, IClientOptions} from 'mqtt';
+import {LogInterface} from "./LogInterface";
 
 export class DeviceManager extends EventEmitter {
     private readonly connection: Connection;
@@ -24,9 +25,12 @@ export class DeviceManager extends EventEmitter {
 
     private mqttClient?: MqttClient;
 
-    private logger = console;
-
-    constructor(config: ClientConfiguration, autoReconnect = false, mqtt?: IClientOptions) {
+    constructor(
+        private readonly config: ClientConfiguration,
+        private readonly autoReconnect = false,
+        private readonly mqtt?: IClientOptions,
+        private readonly logger: LogInterface=console,
+    ) {
       super();
 
       this.connection = new Connection(config, autoReconnect);
@@ -126,7 +130,7 @@ export class DeviceManager extends EventEmitter {
       const deviceType: DeviceType | undefined = DeviceManager.getDeviceType(typeId);
       switch (deviceType) {
         case DeviceType.HomeTouch:
-          return new HomeTouchPanel(this.connection, serialNumber, this.mqttClient);
+          return new HomeTouchPanel(this.connection, serialNumber, this.mqttClient, this.logger);
 
         case DeviceType.BinarySensory:
           return new BinarySensorDevice(this.connection, serialNumber, 1, this.mqttClient);
@@ -144,7 +148,7 @@ export class DeviceManager extends EventEmitter {
           return new SysAP(this.connection, serialNumber, this.mqttClient);
 
         default:
-          this.logger.log(serialNumber, typeId);
+          this.logger.info(serialNumber, typeId);
           break;
       }
     }
@@ -193,7 +197,7 @@ export class DeviceManager extends EventEmitter {
           return DeviceType.BinarySensory;
 
             // default:
-            //     console.log('Unknown typeId:', typeId);
+            //     this.logger?.log('Unknown typeId:', typeId);
       }
     }
 }

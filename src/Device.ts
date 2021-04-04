@@ -1,10 +1,9 @@
 import {Connection, DeviceInfo} from './Connection';
 import {EventEmitter} from 'events';
 import {MqttClient} from 'mqtt';
+import {LogInterface} from "./LogInterface";
 
 export class Device extends EventEmitter {
-    protected readonly logger = console;
-
     protected displayName?: string;
     protected floor?: string;
     protected room?: string;
@@ -13,6 +12,7 @@ export class Device extends EventEmitter {
         public readonly connection: Connection,
         public readonly serialNumber: string,
         protected readonly mqttClient?: MqttClient,
+        public readonly logger?: LogInterface,
     ) {
       super();
     }
@@ -39,9 +39,14 @@ export class Device extends EventEmitter {
       // this.logger.info('update', info);
     }
 
-    protected setDatapoint(channel: number, datapoint: string, value: string) {
+    protected async setDatapoint(channel: number, datapoint: string, value: string): Promise<void> {
       const channelString = Device.formatChannelString(channel);
-      this.connection.setDatapoint(this.serialNumber, channelString, datapoint, value);
+
+      try {
+          await this.connection.setDatapoint(this.serialNumber, channelString, datapoint, value);
+      } catch (err) {
+          this.logger?.error('Error with setDatapoint', [channel, datapoint, value], err)
+      }
     }
 
     static parseChannelString(channel: string): number {

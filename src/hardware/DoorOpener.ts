@@ -37,26 +37,26 @@ export class DoorOpener extends SubDevice
     {
         super(connection, serialNumber, channel, mqttClient);
 
-        // this.on(DoorOpenerEvent.OPEN, () => {console.log(this.displayName, 'Door opening')});
-        // this.on(DoorOpenerEvent.CLOSE, () => {console.log(this.displayName, 'Door closing')});
-        // this.on(DoorOpenerEvent.OPENED, () => {console.log(this.displayName, 'Door opened')});
-        // this.on(DoorOpenerEvent.CLOSED, () => {console.log(this.displayName, 'Door closed')});
-        // this.on(DeviceEvent.CHANGE, () => {console.log(this.displayName, 'Door updated')});
+        // this.on(DoorOpenerEvent.OPEN, () => {this.logger?.log(this.displayName, 'Door opening')});
+        // this.on(DoorOpenerEvent.CLOSE, () => {this.logger?.log(this.displayName, 'Door closing')});
+        // this.on(DoorOpenerEvent.OPENED, () => {this.logger?.log(this.displayName, 'Door opened')});
+        // this.on(DoorOpenerEvent.CLOSED, () => {this.logger?.log(this.displayName, 'Door closed')});
+        // this.on(DeviceEvent.CHANGE, () => {this.logger?.log(this.displayName, 'Door updated')});
     }
 
-    public open()
+    public async open()
     {
-        // console.log(this.getRoom(), 'open');
+        // this.logger?.log(this.getRoom(), 'open');
         this._isOpening = true;
         this.emit(DoorOpenerEvent.OPEN);
         this.changed();
 
-        this.setDatapoint(this.channel, this.actuatorDataPoint, this.openValue);
+        await this.setDatapoint(this.channel, this.actuatorDataPoint, this.openValue);
     }
 
     private opening()
     {
-        // console.log(this.getRoom(), 'opening');
+        // this.logger?.log(this.getRoom(), 'opening');
         this._isOpening = true;
 
         this.emit(DoorOpenerEvent.OPEN);
@@ -65,7 +65,7 @@ export class DoorOpener extends SubDevice
 
     private opened()
     {
-        // console.log(this.getRoom(), 'opened');
+        // this.logger?.log(this.getRoom(), 'opened');
         this._isOpening = false;
         this._isOpen = true;
 
@@ -73,20 +73,20 @@ export class DoorOpener extends SubDevice
         this.changed();
     }
 
-    public close()
+    public async close()
     {
-        // console.log(this.getRoom(), 'close');
+        // this.logger?.log(this.getRoom(), 'close');
         this._isOpening = false;
 
         this.emit(DoorOpenerEvent.CLOSE);
         this.changed();
 
-        this.setDatapoint(this.channel, this.actuatorDataPoint, this.closeValue);
+        await this.setDatapoint(this.channel, this.actuatorDataPoint, this.closeValue);
     }
 
     private closing()
     {
-        // console.log(this.getRoom(), 'closing');
+        // this.logger?.log(this.getRoom(), 'closing');
         this._isOpening = false;
 
         this.emit(DoorOpenerEvent.CLOSE);
@@ -95,7 +95,7 @@ export class DoorOpener extends SubDevice
 
     private closed()
     {
-        // console.log(this.getRoom(), 'closed');
+        // this.logger?.log(this.getRoom(), 'closed');
         this._isOpening = false;
         this._isOpen = false;
 
@@ -123,13 +123,13 @@ export class DoorOpener extends SubDevice
         } else if(datapoints[this.sensorDataPoint] == this.closeValue) {
             this._isOpen = false;
         } else {
-            console.log(this.serialNumber, this.channel.toString(16), 'unknown initial datapoint value', datapoints);
+            this.logger?.log(this.serialNumber, this.channel.toString(16), 'unknown initial datapoint value', datapoints);
         }
     }
 
     protected handleChannelUpdate(datapoints:{[dp:string]: string})
     {
-        // console.log('handleChannelUpdate', datapoints);
+        // this.logger?.log('handleChannelUpdate', datapoints);
         super.handleChannelUpdate(datapoints);
 
         if(datapoints[this.sensorDataPoint] == this.openValue) {
@@ -141,7 +141,7 @@ export class DoorOpener extends SubDevice
         } else if(datapoints[this.actuatorDataPoint] == this.closeValue) {
             this.closing();
         } else {
-            console.log(this.serialNumber, this.channel, 'unknown datapoint value', datapoints);
+            this.logger?.log(this.serialNumber, this.channel, 'unknown datapoint value', datapoints);
         }
     }
 

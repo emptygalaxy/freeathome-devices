@@ -56,16 +56,16 @@ export class Thermostat extends SubDevice
         this.lastTargetTemperature = this.targetTemperature = 0;
     }
 
-    public enableAutoHeaing(): void
+    public async enableAutoHeaing(): Promise<void>
     {
         this.targetHeatingEnabled = true;
-        this.setDatapoint(this.channel, this.setHeatingEnabledDataPoint, this.heatingEnabledValue);
+        await this.setDatapoint(this.channel, this.setHeatingEnabledDataPoint, this.heatingEnabledValue);
     }
 
-    public disableHeating(): void
+    public async disableHeating(): Promise<void>
     {
         this.targetHeatingEnabled = false;
-        this.setDatapoint(this.channel, this.setHeatingEnabledDataPoint, this.heatingDisabledValue);
+        await this.setDatapoint(this.channel, this.setHeatingEnabledDataPoint, this.heatingDisabledValue);
     }
 
     public heatingIsEnabled(): boolean
@@ -88,10 +88,10 @@ export class Thermostat extends SubDevice
         return this.targetTemperature;
     }
 
-    public setTargetTemperature(targetTemperature: number): void
+    public async setTargetTemperature(targetTemperature: number): Promise<void>
     {
         this.lastTargetTemperature = this.targetTemperature = targetTemperature;
-        this.setDatapoint(this.channel, this.setTargetTemperatureDataPoint, targetTemperature.toString());
+        await this.setDatapoint(this.channel, this.setTargetTemperatureDataPoint, targetTemperature.toString());
     }
 
     protected handleChannelState(datapoints: { [p: string]: string }) {

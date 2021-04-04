@@ -17,29 +17,29 @@ export class SchakelAktor extends SubDevice
     public static functionIds: FunctionId[] = [FunctionId.FID_SWITCH_ACTUATOR, FunctionId.FID_DES_LIGHT_SWITCH_ACTUATOR, FunctionId.FID_BLIND_ACTUATOR];
 
     protected active:boolean = false;
-    private readonly sensorDatapoint:string = 'odp0000';
-    // private readonly sensorDataPointPairingId: PairingId = PairingId.AL_TIMED_START_STOP;
+    protected readonly sensorDatapoint:string = 'odp0000';
+    // protected readonly sensorDataPointPairingId: PairingId = PairingId.AL_TIMED_START_STOP;
 
-    private readonly actuatorDatapoint:string = 'idp0000';
-    // private readonly actuatorDataPointPairingId: PairingId = PairingId.AL_SWITCH_ON_OFF;
+    protected readonly actuatorDatapoint:string = 'idp0000';
+    // protected readonly actuatorDataPointPairingId: PairingId = PairingId.AL_SWITCH_ON_OFF;
 
-    private readonly onValue:string = '1';
-    private readonly offValue:string = '0';
+    protected readonly onValue:string = '1';
+    protected readonly offValue:string = '0';
 
     constructor(connection:Connection, serialNumber:string, channel:number, mqttClient?: MqttClient)
     {
         super(connection, serialNumber, channel, mqttClient);
 
-        // this.on(SchakelAktorEvent.TURN_ON, () => {console.log(this.displayName, 'SchakelAktor turning on')});
-        // this.on(SchakelAktorEvent.TURNED_ON, () => {console.log(this.displayName, 'SchakelAktor turned on')});
-        // this.on(SchakelAktorEvent.TURN_OFF, () => {console.log(this.displayName, 'SchakelAktor turning off')});
-        // this.on(SchakelAktorEvent.TURNED_OFF, () => {console.log(this.displayName, 'SchakelAktor turned off')});
+        // this.on(SchakelAktorEvent.TURN_ON, () => {this.logger?.log(this.displayName, 'SchakelAktor turning on')});
+        // this.on(SchakelAktorEvent.TURNED_ON, () => {this.logger?.log(this.displayName, 'SchakelAktor turned on')});
+        // this.on(SchakelAktorEvent.TURN_OFF, () => {this.logger?.log(this.displayName, 'SchakelAktor turning off')});
+        // this.on(SchakelAktorEvent.TURNED_OFF, () => {this.logger?.log(this.displayName, 'SchakelAktor turned off')});
     }
 
-    public turnOn(): void
+    public async turnOn(): Promise<void>
     {
         this.emit(SchakelAktorEvent.TURN_ON);
-        this.setDatapoint(this.channel, this.actuatorDatapoint, this.onValue);
+        await this.setDatapoint(this.channel, this.actuatorDatapoint, this.onValue);
     }
 
     protected turnedOn(): void
@@ -49,10 +49,10 @@ export class SchakelAktor extends SubDevice
         this.changed();
     }
 
-    public turnOff(): void
+    public async turnOff(): Promise<void>
     {
         this.emit(SchakelAktorEvent.TURN_OFF);
-        this.setDatapoint(this.channel, this.actuatorDatapoint, this.offValue);
+        await this.setDatapoint(this.channel, this.actuatorDatapoint, this.offValue);
     }
 
     protected turnedOff(): void
@@ -76,7 +76,7 @@ export class SchakelAktor extends SubDevice
         } else if(datapoints[this.sensorDatapoint] == this.offValue) {
             this.active = false;
         } else {
-            console.log(this.serialNumber, this.channel.toString(16), 'unknown initial datapoint value', datapoints);
+            this.logger?.log(this.serialNumber, this.channel.toString(16), 'unknown initial datapoint value', datapoints);
         }
     }
 
@@ -89,7 +89,7 @@ export class SchakelAktor extends SubDevice
         } else if(datapoints[this.sensorDatapoint] == this.offValue) {
             this.turnedOff();
         } else {
-            console.log(this.serialNumber, this.channel, 'unknown datapoint value', datapoints);
+            this.logger?.log(this.serialNumber, this.channel, 'unknown datapoint value', datapoints);
         }
     }
 }

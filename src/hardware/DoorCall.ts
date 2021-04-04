@@ -38,8 +38,8 @@ export  class DoorCall extends SubDevice
         this.doorOpener = doorOpener;
         this.actuatorChannel = actuatorChannel;
 
-        // this.on(DoorCallEvent.TRIGGER, () => { console.log(this.displayName, 'Calling'); });
-        // this.on(DoorCallEvent.TRIGGERED, () => { console.log(this.displayName, 'RING!'); });
+        // this.on(DoorCallEvent.TRIGGER, () => { this.logger?.log(this.displayName, 'Calling'); });
+        // this.on(DoorCallEvent.TRIGGERED, () => { this.logger?.log(this.displayName, 'RING!'); });
 
         // if(this.triggerEnabled())
         // {
@@ -54,15 +54,15 @@ export  class DoorCall extends SubDevice
         return this.actuatorChannel != null;
     }
 
-    public trigger()
+    public async trigger()
     {
         if(this.triggerEnabled())
         {
             this.emit(DoorCallEvent.TRIGGER);
-            this.setDatapoint(Number(this.actuatorChannel), this.actuatorDataPoint, this.actuatorValue);
+            await this.setDatapoint(Number(this.actuatorChannel), this.actuatorDataPoint, this.actuatorValue);
 
         } else {
-            console.error('Illegal DoorCall trigger');
+            this.logger?.error('Illegal DoorCall trigger');
         }
     }
 
@@ -79,7 +79,7 @@ export  class DoorCall extends SubDevice
 
     public handleState(info: DeviceInfo)
     {
-        // console.log(info);
+        // this.logger?.log(info);
         super.handleState(info);
 
         if(this.actuatorChannel) {
@@ -105,7 +105,7 @@ export  class DoorCall extends SubDevice
         if(datapoints[this.sensorDataPoint] == this.sensorValue) {
             this.triggered();
         } else {
-            console.log(this.serialNumber, this.channel, 'unknown datapoint value', datapoints);
+            this.logger?.log(this.serialNumber, this.channel, 'unknown datapoint value', datapoints);
         }
     }
 }
