@@ -1,6 +1,7 @@
 import {Light} from "./Light";
 import {Connection} from "../Connection";
 import {FunctionId} from "../FunctionId";
+import {LogInterface} from "../LogInterface";
 
 export class DimmableLight extends Light
 {
@@ -13,9 +14,9 @@ export class DimmableLight extends Light
     private brightnessDataPointGet: string = 'odp0001';
     private brightnessDataPointSet: string = 'odp0001';
 
-    constructor(connection:Connection, serialNumber:string, channel:number)
+    constructor(logger: LogInterface, connection: Connection, serialNumber: string, channel: number)
     {
-        super(connection, serialNumber, channel);
+        super(logger, connection, serialNumber, channel);
 
         // this.on(LightEvent.TURNED_ON, () => {console.log(this.displayName, 'Light turned on')});
         // this.on(LightEvent.TURNED_OFF, () => {console.log(this.displayName, 'Light turned off')});
@@ -61,5 +62,11 @@ export class DimmableLight extends Light
             this.brightness = parseInt(datapoints[this.brightnessDataPointGet]);
             this.changed();
         }
+    }
+
+    public changed(): void {
+        super.changed();
+
+        this.logger.info(`[${this.getIdentifierName()}] Light brightness ` + this.brightness);
     }
 }

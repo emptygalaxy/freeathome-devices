@@ -3,7 +3,7 @@ import { Subscriber } from 'freeathome-api/dist/lib/Subscriber';
 import { BroadcastMessage } from 'freeathome-api/dist/lib/BroadcastMessage';
 import {EventEmitter} from 'events';
 import Timeout = NodeJS.Timeout;
-import {LogInterface} from "./LogInterface";
+import {LogInterface} from './LogInterface';
 
 export enum ConnectionEvent
 {
@@ -155,10 +155,10 @@ export class Connection extends EventEmitter implements Subscriber, Logger {
 
 
       if(messages && messages.length > 0 && messages[0] === 'not paired' && this.autoReconnect) {
-          // reconnect automatically
-          this.reconnect().then(() => {
-              this.logger.info('reconnected');
-          });
+        // reconnect automatically
+        this.reconnect().then(() => {
+          this.logger.info('reconnected');
+        });
       }
     }
 
@@ -194,13 +194,13 @@ export class Connection extends EventEmitter implements Subscriber, Logger {
       const webUrl = 'http://' + this.config.hostname;
       this.logger.log('Please log in and out of the web interface on', webUrl);
       if(this.autoReconnect) {
-          await this.reconnect();
+        await this.reconnect();
       }
     }
 
     private async reconnect(): Promise<void> {
-        this.logger.log('reconnecting now');
-        await this.stop();
-        await this.start();
+      this.logger.log('reconnecting now');
+      await this.stop();
+      await this.start();
     }
 }

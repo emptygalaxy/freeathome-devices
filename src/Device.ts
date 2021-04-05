@@ -1,7 +1,7 @@
 import {Connection, DeviceInfo} from './Connection';
 import {EventEmitter} from 'events';
 import {MqttClient} from 'mqtt';
-import {LogInterface} from "./LogInterface";
+import {LogInterface} from './LogInterface';
 
 export class Device extends EventEmitter {
     protected displayName?: string;
@@ -9,10 +9,10 @@ export class Device extends EventEmitter {
     protected room?: string;
 
     constructor(
+        public readonly logger: LogInterface,
         public readonly connection: Connection,
         public readonly serialNumber: string,
         protected readonly mqttClient?: MqttClient,
-        public readonly logger?: LogInterface,
     ) {
       super();
     }
@@ -29,6 +29,12 @@ export class Device extends EventEmitter {
       return this.room;
     }
 
+    public getIdentifierName(): string {
+      return [this.floor, this.room, this.displayName, this.constructor.name].filter((value?: string) => {
+        return value !== undefined && value !== null && value !== '';
+      }).join(' ');
+    }
+
     public handleState(info: DeviceInfo) {
       this.displayName = info.typeName;
       // this.logger.log(this.displayName);
@@ -43,9 +49,9 @@ export class Device extends EventEmitter {
       const channelString = Device.formatChannelString(channel);
 
       try {
-          await this.connection.setDatapoint(this.serialNumber, channelString, datapoint, value);
+        await this.connection.setDatapoint(this.serialNumber, channelString, datapoint, value);
       } catch (err) {
-          this.logger?.error('Error with setDatapoint', [channel, datapoint, value], err)
+        this.logger.error('Error with setDatapoint', [channel, datapoint, value], err);
       }
     }
 

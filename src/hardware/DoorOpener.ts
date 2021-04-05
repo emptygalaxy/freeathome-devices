@@ -2,6 +2,7 @@ import {Connection} from "../Connection";
 import {DeviceEvent, SubDevice} from "../SubDevice";
 import {FunctionId} from "../FunctionId";
 import {MqttClient} from "mqtt";
+import {LogInterface} from "../LogInterface";
 // import {PairingId} from "../PairingId";
 
 export enum DoorOpenerEvent{
@@ -33,20 +34,21 @@ export class DoorOpener extends SubDevice
     private readonly openValue: string = '1';
     private readonly closeValue: string = '0';
 
-    constructor(connection:Connection, serialNumber:string, channel:number, mqttClient?: MqttClient)
+    constructor(logger: LogInterface, connection: Connection, serialNumber: string, channel: number, mqttClient?: MqttClient)
     {
-        super(connection, serialNumber, channel, mqttClient);
+        super(logger, connection, serialNumber, channel, mqttClient);
 
-        // this.on(DoorOpenerEvent.OPEN, () => {this.logger?.log(this.displayName, 'Door opening')});
-        // this.on(DoorOpenerEvent.CLOSE, () => {this.logger?.log(this.displayName, 'Door closing')});
-        // this.on(DoorOpenerEvent.OPENED, () => {this.logger?.log(this.displayName, 'Door opened')});
-        // this.on(DoorOpenerEvent.CLOSED, () => {this.logger?.log(this.displayName, 'Door closed')});
-        // this.on(DeviceEvent.CHANGE, () => {this.logger?.log(this.displayName, 'Door updated')});
+        // this.on(DoorOpenerEvent.OPEN, () => {this.logger.log(this.displayName, 'Door opening')});
+        // this.on(DoorOpenerEvent.CLOSE, () => {this.logger.log(this.displayName, 'Door closing')});
+        // this.on(DoorOpenerEvent.OPENED, () => {this.logger.log(this.displayName, 'Door opened')});
+        // this.on(DoorOpenerEvent.CLOSED, () => {this.logger.log(this.displayName, 'Door closed')});
+        // this.on(DeviceEvent.CHANGE, () => {this.logger.log(this.displayName, 'Door updated')});
     }
 
     public async open()
     {
-        // this.logger?.log(this.getRoom(), 'open');
+        this.logger.info(`[${this.getIdentifierName()}] DoorOpener open`);
+
         this._isOpening = true;
         this.emit(DoorOpenerEvent.OPEN);
         this.changed();
@@ -56,7 +58,8 @@ export class DoorOpener extends SubDevice
 
     private opening()
     {
-        // this.logger?.log(this.getRoom(), 'opening');
+        this.logger.info(`[${this.getIdentifierName()}] DoorOpener opening`);
+
         this._isOpening = true;
 
         this.emit(DoorOpenerEvent.OPEN);
@@ -65,7 +68,8 @@ export class DoorOpener extends SubDevice
 
     private opened()
     {
-        // this.logger?.log(this.getRoom(), 'opened');
+        this.logger.info(`[${this.getIdentifierName()}] DoorOpener opened`);
+
         this._isOpening = false;
         this._isOpen = true;
 
@@ -75,7 +79,8 @@ export class DoorOpener extends SubDevice
 
     public async close()
     {
-        // this.logger?.log(this.getRoom(), 'close');
+        this.logger.info(`[${this.getIdentifierName()}] DoorOpener close`);
+
         this._isOpening = false;
 
         this.emit(DoorOpenerEvent.CLOSE);
@@ -86,7 +91,8 @@ export class DoorOpener extends SubDevice
 
     private closing()
     {
-        // this.logger?.log(this.getRoom(), 'closing');
+        this.logger.info(`[${this.getIdentifierName()}] DoorOpener closing`);
+
         this._isOpening = false;
 
         this.emit(DoorOpenerEvent.CLOSE);
@@ -95,7 +101,8 @@ export class DoorOpener extends SubDevice
 
     private closed()
     {
-        // this.logger?.log(this.getRoom(), 'closed');
+        this.logger.info(`[${this.getIdentifierName()}] DoorOpener closed`);
+
         this._isOpening = false;
         this._isOpen = false;
 
@@ -123,13 +130,13 @@ export class DoorOpener extends SubDevice
         } else if(datapoints[this.sensorDataPoint] == this.closeValue) {
             this._isOpen = false;
         } else {
-            this.logger?.log(this.serialNumber, this.channel.toString(16), 'unknown initial datapoint value', datapoints);
+            this.logger.warn(this.serialNumber, this.channel.toString(16), 'unknown initial datapoint value', datapoints);
         }
     }
 
     protected handleChannelUpdate(datapoints:{[dp:string]: string})
     {
-        // this.logger?.log('handleChannelUpdate', datapoints);
+        // this.logger.log('handleChannelUpdate', datapoints);
         super.handleChannelUpdate(datapoints);
 
         if(datapoints[this.sensorDataPoint] == this.openValue) {
@@ -141,7 +148,7 @@ export class DoorOpener extends SubDevice
         } else if(datapoints[this.actuatorDataPoint] == this.closeValue) {
             this.closing();
         } else {
-            this.logger?.log(this.serialNumber, this.channel, 'unknown datapoint value', datapoints);
+            this.logger.warn(this.serialNumber, this.channel, 'unknown datapoint value', datapoints);
         }
     }
 

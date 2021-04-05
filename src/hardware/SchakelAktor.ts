@@ -3,6 +3,7 @@ import {SubDevice} from "../SubDevice";
 import {FunctionId} from "../FunctionId";
 // import {PairingId} from "../PairingId";
 import {MqttClient} from "mqtt";
+import {LogInterface} from "../LogInterface";
 
 export enum SchakelAktorEvent
 {
@@ -26,14 +27,14 @@ export class SchakelAktor extends SubDevice
     protected readonly onValue:string = '1';
     protected readonly offValue:string = '0';
 
-    constructor(connection:Connection, serialNumber:string, channel:number, mqttClient?: MqttClient)
+    constructor(logger: LogInterface, connection: Connection, serialNumber: string, channel: number, mqttClient?: MqttClient)
     {
-        super(connection, serialNumber, channel, mqttClient);
+        super(logger, connection, serialNumber, channel, mqttClient);
 
-        // this.on(SchakelAktorEvent.TURN_ON, () => {this.logger?.log(this.displayName, 'SchakelAktor turning on')});
-        // this.on(SchakelAktorEvent.TURNED_ON, () => {this.logger?.log(this.displayName, 'SchakelAktor turned on')});
-        // this.on(SchakelAktorEvent.TURN_OFF, () => {this.logger?.log(this.displayName, 'SchakelAktor turning off')});
-        // this.on(SchakelAktorEvent.TURNED_OFF, () => {this.logger?.log(this.displayName, 'SchakelAktor turned off')});
+        // this.on(SchakelAktorEvent.TURN_ON, () => {this.logger.log(this.displayName, 'SchakelAktor turning on')});
+        // this.on(SchakelAktorEvent.TURNED_ON, () => {this.logger.log(this.displayName, 'SchakelAktor turned on')});
+        // this.on(SchakelAktorEvent.TURN_OFF, () => {this.logger.log(this.displayName, 'SchakelAktor turning off')});
+        // this.on(SchakelAktorEvent.TURNED_OFF, () => {this.logger.log(this.displayName, 'SchakelAktor turned off')});
     }
 
     public async turnOn(): Promise<void>
@@ -76,7 +77,7 @@ export class SchakelAktor extends SubDevice
         } else if(datapoints[this.sensorDatapoint] == this.offValue) {
             this.active = false;
         } else {
-            this.logger?.log(this.serialNumber, this.channel.toString(16), 'unknown initial datapoint value', datapoints);
+            this.logger.log(this.serialNumber, this.channel.toString(16), 'unknown initial datapoint value', datapoints);
         }
     }
 
@@ -89,7 +90,18 @@ export class SchakelAktor extends SubDevice
         } else if(datapoints[this.sensorDatapoint] == this.offValue) {
             this.turnedOff();
         } else {
-            this.logger?.log(this.serialNumber, this.channel, 'unknown datapoint value', datapoints);
+            this.logger.log(this.serialNumber, this.channel, 'unknown datapoint value', datapoints);
         }
+    }
+
+    public changed(): void {
+        super.changed();
+
+        this.logger.info(`[${this.getIdentifierName()}] Schakel Aktor ` + (this.isOn() ? 'on' : 'off'));
+
+        this.mqttClient?.publish(
+            ['freeathome', this.serialNumber, 'schakelaktor', this.channel].join('/'),
+            this.active?'on':'off'
+        );
     }
 }

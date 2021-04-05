@@ -1,6 +1,7 @@
 import {SubDevice} from "../SubDevice";
 import {Connection} from "../Connection";
 import {FunctionId} from "../FunctionId";
+import {LogInterface} from "../LogInterface";
 
 export enum ThermostatEvent
 {
@@ -46,9 +47,9 @@ export class Thermostat extends SubDevice
     private readonly getTargetTemperatureDataPoint: string = 'odp0006';
     private readonly setTargetTemperatureDataPoint: string = 'idp0016';
 
-    constructor(connection: Connection, serialNumber: string, channel: number)
+    constructor(logger: LogInterface, connection: Connection, serialNumber: string, channel: number)
     {
-        super(connection, serialNumber, channel);
+        super(logger, connection, serialNumber, channel);
 
         this.currentHeatingEnabled = false;
         this.targetHeatingEnabled = false;

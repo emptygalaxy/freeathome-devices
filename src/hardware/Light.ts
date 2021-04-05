@@ -2,6 +2,7 @@ import {Connection} from "../Connection";
 import {SchakelAktor} from "./SchakelAktor";
 import {FunctionId} from "../FunctionId";
 import {MqttClient} from "mqtt";
+import {LogInterface} from "../LogInterface";
 
 export enum LightEvent
 {
@@ -15,12 +16,12 @@ export class Light extends SchakelAktor
 {
     public static functionIds: FunctionId[] = [FunctionId.FID_DES_LIGHT_SWITCH_ACTUATOR];
 
-    constructor(connection:Connection, serialNumber:string, channel:number, mqttClient?: MqttClient)
+    constructor(logger: LogInterface, connection: Connection, serialNumber: string, channel: number, mqttClient?: MqttClient)
     {
-        super(connection, serialNumber, channel, mqttClient);
+        super(logger, connection, serialNumber, channel, mqttClient);
 
-        // this.on(LightEvent.TURNED_ON, () => {this.logger?.log(this.displayName, 'Light turned on')});
-        // this.on(LightEvent.TURNED_OFF, () => {this.logger?.log(this.displayName, 'Light turned off')});
+        // this.on(LightEvent.TURNED_ON, () => {this.logger.log(this.displayName, 'Light turned on')});
+        // this.on(LightEvent.TURNED_OFF, () => {this.logger.log(this.displayName, 'Light turned off')});
     }
 
     public async turnOn(): Promise<void>
@@ -51,6 +52,8 @@ export class Light extends SchakelAktor
 
     public changed(): void {
         super.changed();
+
+        this.logger.info(`[${this.getIdentifierName()}] Light ` + (this.isOn() ? 'on' : 'off'));
 
         this.mqttClient?.publish(
             ['freeathome', this.serialNumber, 'light', this.channel].join('/'),

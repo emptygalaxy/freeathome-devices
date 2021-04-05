@@ -14,7 +14,7 @@ import {DeviceTypeId} from './DeviceTypeId';
 import {DeviceType} from './DeviceType';
 import {EventEmitter} from 'events';
 import {MqttClient, connect, IClientOptions} from 'mqtt';
-import {LogInterface} from "./LogInterface";
+import {LogInterface} from './LogInterface';
 
 export class DeviceManager extends EventEmitter {
     private readonly connection: Connection;
@@ -33,7 +33,7 @@ export class DeviceManager extends EventEmitter {
     ) {
       super();
 
-      this.connection = new Connection(config, autoReconnect);
+      this.connection = new Connection(this.config, this.autoReconnect, this.logger);
 
       // this.connection.on(ConnectionEvent.READY, ()=>{
       //   this.logger.log('Ready');
@@ -130,22 +130,22 @@ export class DeviceManager extends EventEmitter {
       const deviceType: DeviceType | undefined = DeviceManager.getDeviceType(typeId);
       switch (deviceType) {
         case DeviceType.HomeTouch:
-          return new HomeTouchPanel(this.connection, serialNumber, this.mqttClient, this.logger);
+          return new HomeTouchPanel(this.logger, this.connection, serialNumber, this.mqttClient);
 
         case DeviceType.BinarySensory:
-          return new BinarySensorDevice(this.connection, serialNumber, 1, this.mqttClient);
+          return new BinarySensorDevice(this.logger, this.connection, serialNumber, 1, this.mqttClient);
 
         case DeviceType.SchakelAktor:
-          return new SchakelAktorDevice(this.connection, serialNumber, 1, this.mqttClient);
+          return new SchakelAktorDevice(this.logger, this.connection, serialNumber, 1, this.mqttClient);
 
         case DeviceType.Jalousie:
-          return new JalousieDevice(this.connection, serialNumber, 1, this.mqttClient);
+          return new JalousieDevice(this.logger, this.connection, serialNumber, 1, this.mqttClient);
 
         case DeviceType.Thermostat:
-          return new ThermostatDevice(this.connection, serialNumber, 1, this.mqttClient);
+          return new ThermostatDevice(this.logger, this.connection, serialNumber, 1, this.mqttClient);
 
         case DeviceType.SystemAccessPoint:
-          return new SysAP(this.connection, serialNumber, this.mqttClient);
+          return new SysAP(this.logger, this.connection, serialNumber, this.mqttClient);
 
         default:
           this.logger.info(serialNumber, typeId);
@@ -197,7 +197,7 @@ export class DeviceManager extends EventEmitter {
           return DeviceType.BinarySensory;
 
             // default:
-            //     this.logger?.log('Unknown typeId:', typeId);
+            //     this.logger.log('Unknown typeId:', typeId);
       }
     }
 }

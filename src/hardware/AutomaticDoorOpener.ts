@@ -2,6 +2,7 @@ import {SubDevice} from "../SubDevice";
 import {Connection} from "../Connection";
 import {FunctionId} from "../FunctionId";
 import {MqttClient} from "mqtt";
+import {LogInterface} from "../LogInterface";
 // import {PairingId} from "../PairingId";
 
 
@@ -33,14 +34,14 @@ export class AutomaticDoorOpener extends SubDevice
     private readonly activeValue:string = '1';
     private readonly inactiveValue:string = '0';
 
-    constructor(connection:Connection, serialNumber:string, channel:number, mqttClient?: MqttClient)
+    constructor(logger: LogInterface, connection: Connection, serialNumber: string, channel: number, mqttClient?: MqttClient)
     {
-        super(connection, serialNumber, channel, mqttClient);
+        super(logger, connection, serialNumber, channel, mqttClient);
 
-        // this.on(AutomaticDoorOpenerEvent.ENABLE, () => {this.logger?.log(this.displayName, 'Automatic door opener enabling')});
-        // this.on(AutomaticDoorOpenerEvent.DISABLE, () => {this.logger?.log(this.displayName, 'Automatic door opener disabling')});
-        // this.on(AutomaticDoorOpenerEvent.ENABLED, () => {this.logger?.log(this.displayName, 'Automatic door opener enabled')});
-        // this.on(AutomaticDoorOpenerEvent.DISABLED, () => {this.logger?.log(this.displayName, 'Automatic door opener disabled')});
+        // this.on(AutomaticDoorOpenerEvent.ENABLE, () => {this.logger.log(this.displayName, 'Automatic door opener enabling')});
+        // this.on(AutomaticDoorOpenerEvent.DISABLE, () => {this.logger.log(this.displayName, 'Automatic door opener disabling')});
+        // this.on(AutomaticDoorOpenerEvent.ENABLED, () => {this.logger.log(this.displayName, 'Automatic door opener enabled')});
+        // this.on(AutomaticDoorOpenerEvent.DISABLED, () => {this.logger.log(this.displayName, 'Automatic door opener disabled')});
     }
 
     public async enable(): Promise<void>
@@ -78,13 +79,13 @@ export class AutomaticDoorOpener extends SubDevice
     {
         super.handleChannelState(datapoints);
 
-        // this.logger?.log(this.constructor.name, 'handleChannelState', datapoints[this.actuatorDatapoint]);
+        // this.logger.log(this.constructor.name, 'handleChannelState', datapoints[this.actuatorDatapoint]);
         if(datapoints[this.actuatorDatapoint] == this.activeValue) {
             this.active = true;
         } else if(datapoints[this.actuatorDatapoint] == this.inactiveValue) {
             this.active = false;
         } else {
-            this.logger?.log(this.serialNumber, this.channel.toString(16), 'unknown initial actuatorDatapoint value', datapoints);
+            this.logger.warn(this.serialNumber, this.channel.toString(16), 'unknown initial actuatorDatapoint value', datapoints);
         }
     }
 
@@ -102,12 +103,14 @@ export class AutomaticDoorOpener extends SubDevice
         } else if(datapoints[this.sensorDatapoint] == this.inactiveValue) { // disabled confirmation
             this.disabled();
         } else {
-            this.logger?.log(this.serialNumber, this.channel.toString(16), 'unknown actuatorDatapoint value', datapoints);
+            this.logger.warn(this.serialNumber, this.channel.toString(16), 'unknown actuatorDatapoint value', datapoints);
         }
     }
 
     public changed(): void {
         super.changed();
+
+        this.logger.info(`[${this.getIdentifierName()}] Automatic door opener ` + (this.isEnabled() ? 'active' : 'inactive'));
 
         this.mqttClient?.publish(
             ['freeathome', this.serialNumber, 'automaticdooropener', this.channel].join('/'),

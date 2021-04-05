@@ -1,6 +1,7 @@
 import {SubDevice} from "../SubDevice";
 import {Connection} from "../Connection";
 import {FunctionId} from "../FunctionId";
+import {LogInterface} from "../LogInterface";
 
 export class Jalousie extends SubDevice
 {
@@ -17,9 +18,9 @@ export class Jalousie extends SubDevice
     private targetPositionDataPointGet: string = 'odp0002';
     private targetPositionDataPointSet: string = 'idp0002';
 
-    constructor(connection:Connection, serialNumber:string, channel:number)
+    constructor(logger: LogInterface, connection: Connection, serialNumber: string, channel: number)
     {
-        super(connection, serialNumber, channel);
+        super(logger, connection, serialNumber, channel);
     }
 
     public getState(): JalousieState

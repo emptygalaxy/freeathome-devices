@@ -1,5 +1,6 @@
 import {Connection} from "../Connection";
 import {SubDevice} from "../SubDevice";
+import {LogInterface} from "../LogInterface";
 // import {FunctionId} from "../FunctionId";
 // import {PairingId} from "../PairingId";
 
@@ -23,12 +24,12 @@ export class BinarySensor extends SubDevice
     private readonly activeValue:string = '1';
     private readonly inactiveValue:string = '0';
 
-    constructor(connection:Connection, serialNumber:string, channel:number)
+    constructor(logger: LogInterface, connection: Connection, serialNumber: string, channel: number)
     {
-        super(connection, serialNumber, channel);
+        super(logger, connection, serialNumber, channel);
 
-        // this.on(BinarySensorEvent.ACTIVATED, () => {this.logger?.log(this.displayName, 'BinarySensor turned on')});
-        // this.on(BinarySensorEvent.DEACTIVATED, () => {this.logger?.log(this.displayName, 'BinarySensor turned off')});
+        // this.on(BinarySensorEvent.ACTIVATED, () => {this.logger.log(this.displayName, 'BinarySensor turned on')});
+        // this.on(BinarySensorEvent.DEACTIVATED, () => {this.logger.log(this.displayName, 'BinarySensor turned off')});
     }
 
     private activated(): void
@@ -59,7 +60,7 @@ export class BinarySensor extends SubDevice
         } else if(datapoints[this.datapoint] == this.inactiveValue) {
             this.active = false;
         } else {
-            this.logger?.log(this.serialNumber, this.channel.toString(16), 'unknown initial datapoint value', datapoints);
+            this.logger.log(this.serialNumber, this.channel.toString(16), 'unknown initial datapoint value', datapoints);
         }
     }
 
@@ -72,7 +73,18 @@ export class BinarySensor extends SubDevice
         } else if(datapoints[this.datapoint] == this.inactiveValue) {
             this.deactivated();
         } else {
-            this.logger?.log(this.serialNumber, this.channel, 'unknown datapoint value', datapoints);
+            this.logger.log(this.serialNumber, this.channel, 'unknown datapoint value', datapoints);
         }
+    }
+
+    public changed(): void {
+        super.changed();
+
+        this.logger.info(`[${this.getIdentifierName()}] Binary sensor ` + (this.isActive() ? 'active' : 'inactive'));
+
+        this.mqttClient?.publish(
+            ['freeathome', this.serialNumber, 'binarysensor', this.channel].join('/'),
+            this.isActive()?'active':'inactive'
+        );
     }
 }

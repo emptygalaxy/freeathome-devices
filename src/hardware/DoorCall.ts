@@ -3,6 +3,7 @@ import {SubDevice} from "../SubDevice";
 import {DoorOpener} from "./DoorOpener";
 import {FunctionId} from "../FunctionId";
 import {MqttClient} from "mqtt";
+import {LogInterface} from "../LogInterface";
 // import {PairingId} from "../PairingId";
 
 
@@ -31,15 +32,15 @@ export  class DoorCall extends SubDevice
     // private readonly actuatorDataPointPairingId: PairingId = PairingId.AL_INFO_ON_OFF;
     private readonly actuatorValue:string = '1';
 
-    constructor(connection:Connection, serialNumber:string, doorOpener:DoorOpener|undefined, channel:number, actuatorChannel?:number, mqttClient?: MqttClient)
+    constructor(logger: LogInterface, connection: Connection, serialNumber: string, doorOpener: DoorOpener|undefined, channel: number, actuatorChannel?: number, mqttClient?: MqttClient)
     {
-        super(connection, serialNumber, channel, mqttClient);
+        super(logger, connection, serialNumber, channel, mqttClient);
 
         this.doorOpener = doorOpener;
         this.actuatorChannel = actuatorChannel;
 
-        // this.on(DoorCallEvent.TRIGGER, () => { this.logger?.log(this.displayName, 'Calling'); });
-        // this.on(DoorCallEvent.TRIGGERED, () => { this.logger?.log(this.displayName, 'RING!'); });
+        // this.on(DoorCallEvent.TRIGGER, () => { this.logger.log(this.displayName, 'Calling'); });
+        // this.on(DoorCallEvent.TRIGGERED, () => { this.logger.log(this.displayName, 'RING!'); });
 
         // if(this.triggerEnabled())
         // {
@@ -62,7 +63,7 @@ export  class DoorCall extends SubDevice
             await this.setDatapoint(Number(this.actuatorChannel), this.actuatorDataPoint, this.actuatorValue);
 
         } else {
-            this.logger?.error('Illegal DoorCall trigger');
+            this.logger.error('Illegal DoorCall trigger');
         }
     }
 
@@ -70,6 +71,8 @@ export  class DoorCall extends SubDevice
     private triggered()
     {
         this.emit(DoorCallEvent.TRIGGERED);
+
+        this.logger.info(`[${this.getIdentifierName()}] DoorCall called`);
 
         this.mqttClient?.publish(
             ['freeathome', this.serialNumber, 'doorcall', this.channel].join('/'),
@@ -79,7 +82,7 @@ export  class DoorCall extends SubDevice
 
     public handleState(info: DeviceInfo)
     {
-        // this.logger?.log(info);
+        // this.logger.log(info);
         super.handleState(info);
 
         if(this.actuatorChannel) {
@@ -105,7 +108,7 @@ export  class DoorCall extends SubDevice
         if(datapoints[this.sensorDataPoint] == this.sensorValue) {
             this.triggered();
         } else {
-            this.logger?.log(this.serialNumber, this.channel, 'unknown datapoint value', datapoints);
+            this.logger.warn(this.serialNumber, this.channel, 'unknown datapoint value', datapoints);
         }
     }
 }

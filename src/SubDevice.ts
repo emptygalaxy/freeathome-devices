@@ -2,6 +2,7 @@ import {Device} from './Device';
 import {ChannelInfo, Connection, DeviceInfo} from './Connection';
 import {FunctionId} from './FunctionId';
 import {MqttClient} from 'mqtt';
+import {LogInterface} from './LogInterface';
 
 export enum DeviceEvent {
     CHANGE = 'change'
@@ -13,8 +14,8 @@ export class SubDevice extends Device {
     private functionId?: FunctionId;
     protected lastChannelUpdate?: {[dp: string]: string};
 
-    constructor(connection: Connection, serialNumber: string, channel: number, mqttClient?: MqttClient) {
-      super(connection, serialNumber, mqttClient);
+    constructor(logger: LogInterface, connection: Connection, serialNumber: string, channel: number, mqttClient?: MqttClient) {
+      super(logger, connection, serialNumber, mqttClient);
 
       this.channel = channel;
     }
