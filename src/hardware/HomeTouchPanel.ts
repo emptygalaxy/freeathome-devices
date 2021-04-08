@@ -64,7 +64,7 @@ export class HomeTouchPanel extends BridgeDevice
 
     public handleUpdate(info: DeviceInfo) {
         super.handleUpdate(info);
-        this.logger.debug('HomeTouchPanel update', info);
+        this.logger.debug('HomeTouchPanel update', JSON.stringify(info, null, 4));
     }
 }
 

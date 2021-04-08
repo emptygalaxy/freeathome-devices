@@ -27,13 +27,14 @@ export class DeviceManager extends EventEmitter {
 
     constructor(
         private readonly config: ClientConfiguration,
-        private readonly autoReconnect = false,
-        private readonly mqtt?: IClientOptions,
         private readonly logger: LogInterface=console,
+        private readonly autoReconnect = false,
+        private readonly timeout: number = 60 * 1000,
+        private readonly mqtt?: IClientOptions,
     ) {
       super();
 
-      this.connection = new Connection(this.config, this.autoReconnect, this.logger);
+      this.connection = new Connection(this.config, this.logger, this.autoReconnect, 60 * 1000);
 
       // this.connection.on(ConnectionEvent.READY, ()=>{
       //   this.logger.log('Ready');

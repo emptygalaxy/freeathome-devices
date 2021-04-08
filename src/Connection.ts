@@ -57,7 +57,6 @@ export class Connection extends EventEmitter implements Subscriber, Logger {
 
     private _lastUpdate?: Date;
     private silenceTimeoutId?: Timeout;
-    private readonly silenceTimeoutDuration = 60 * 1000;
 
     public get lastUpdate(): Date|undefined {
       return this._lastUpdate;
@@ -65,8 +64,9 @@ export class Connection extends EventEmitter implements Subscriber, Logger {
 
     constructor(
         private readonly config: ClientConfiguration,
-        private readonly autoReconnect = false,
         private readonly logger: LogInterface=console,
+        private readonly autoReconnect = false,
+        private readonly silenceTimeoutDuration: number = 60 * 1000,
     ) {
       super();
 
@@ -153,8 +153,11 @@ export class Connection extends EventEmitter implements Subscriber, Logger {
     error(...messages: string[] | number[] | Record<string, any>[]): void {
       this.logger.error('error', messages);
 
-
-      if(messages && messages.length > 0 && messages[0] === 'not paired' && this.autoReconnect) {
+      const unrecoverableErrors = [
+        'not paired',
+        'Unexpected error while processing stanza event',
+      ];
+      if(messages && messages.length > 0 && this.autoReconnect && unrecoverableErrors.indexOf(messages[0].toString()) > -1) {
         // reconnect automatically
         this.reconnect().then(() => {
           this.logger.info('reconnected');
