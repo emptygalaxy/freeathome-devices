@@ -13,7 +13,8 @@
     "rootDir": "src",
     "resolveJsonModule": true,
     "outDir": "dist",
-    "declaration": true
+    "declaration": true,
+    "forceConsistentCasingInFileNames": true
   },
   "exclude": [
     "node_modules"
