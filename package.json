@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "prepare1": "npm run build",
+    "prepare": "npm run build",
     "lint": "eslint src/**.ts --fix",
     "clean": "rm -rf ./dist/* ",
     "build": "tsc",
