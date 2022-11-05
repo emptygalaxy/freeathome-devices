@@ -1,11 +1,9 @@
-import {Device} from "../Device";
+import {Device} from '../Device';
 
-export class BridgeDevice extends Device
-{
-    protected devices:Device[] = [];
+export class BridgeDevice extends Device {
+  protected devices: Device[] = [];
 
-    public getSubDevices():Device[]
-    {
-        return this.devices;
-    }
+  public getSubDevices(): Device[] {
+    return this.devices;
+  }
 }

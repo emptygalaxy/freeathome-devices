@@ -16,9 +16,14 @@ dm.on(ConnectionEvent.DEVICES, () => {
   devices.forEach((device: Device) => {
     logger.log('Device', device.constructor.name);
 
-    if(device instanceof BridgeDevice) {
+    if (device instanceof BridgeDevice) {
       (device as BridgeDevice).getSubDevices().forEach((subDevice: Device) => {
-        logger.log('SubDevice', subDevice.constructor.name, subDevice.getFloor(), subDevice.getRoom());
+        logger.log(
+          'SubDevice',
+          subDevice.constructor.name,
+          subDevice.getFloor(),
+          subDevice.getRoom()
+        );
       });
     }
   });

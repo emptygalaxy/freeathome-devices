@@ -5,74 +5,80 @@ import {MqttClient} from 'mqtt';
 import {LogInterface} from './LogInterface';
 
 export enum DeviceEvent {
-    CHANGE = 'change'
+  CHANGE = 'change',
 }
 
 export class SubDevice extends Device {
-    public readonly channel: number;
+  public readonly channel: number;
 
-    private functionId?: FunctionId;
-    protected lastChannelUpdate?: {[dp: string]: string};
+  private functionId?: FunctionId;
+  protected lastChannelUpdate?: {[dp: string]: string};
 
-    constructor(logger: LogInterface, connection: Connection, serialNumber: string, channel: number, mqttClient?: MqttClient) {
-      super(logger, connection, serialNumber, mqttClient);
+  constructor(
+    logger: LogInterface,
+    connection: Connection,
+    serialNumber: string,
+    channel: number,
+    mqttClient?: MqttClient
+  ) {
+    super(logger, connection, serialNumber, mqttClient);
 
-      this.channel = channel;
-    }
+    this.channel = channel;
+  }
 
-    public changed(): void {
-      this.emit(DeviceEvent.CHANGE);
-    }
+  public changed(): void {
+    this.emit(DeviceEvent.CHANGE);
+  }
 
-    public getFunctionId(): FunctionId|undefined {
-      return this.functionId;
-    }
+  public getFunctionId(): FunctionId | undefined {
+    return this.functionId;
+  }
 
-    public handleState(info: DeviceInfo) {
-      super.handleState(info);
+  public handleState(info: DeviceInfo) {
+    super.handleState(info);
 
-      for(const channelId in info.channels) {
-        const channelNumber: number = SubDevice.parseChannelString(channelId);
-        if(channelNumber === this.channel) {
-          const channel: ChannelInfo = info.channels[channelId];
+    for (const channelId in info.channels) {
+      const channelNumber: number = SubDevice.parseChannelString(channelId);
+      if (channelNumber === this.channel) {
+        const channel: ChannelInfo = info.channels[channelId];
 
-          this.displayName = channel.displayName;
-          this.floor = channel.floor;
-          this.room = channel.room;
+        this.displayName = channel.displayName;
+        this.floor = channel.floor;
+        this.room = channel.room;
 
-          this.functionId = SubDevice.parseFunctionId(channel.functionId);
+        this.functionId = SubDevice.parseFunctionId(channel.functionId);
 
-          this.handleChannelState(channel.datapoints);
-        }
+        this.handleChannelState(channel.datapoints);
       }
     }
+  }
 
-    protected handleChannelState(datapoints: {[dp: string]: string}) {
-      this.lastChannelUpdate = datapoints;
-    }
+  protected handleChannelState(datapoints: {[dp: string]: string}) {
+    this.lastChannelUpdate = datapoints;
+  }
 
-    public handleUpdate(info: DeviceInfo) {
-      super.handleUpdate(info);
+  public handleUpdate(info: DeviceInfo) {
+    super.handleUpdate(info);
 
-      for(const channelId in info.channels) {
-        const channelNumber: number = SubDevice.parseChannelString(channelId);
-        if(channelNumber === this.channel) {
-          const channel: ChannelInfo = info.channels[channelId];
-          this.handleChannelUpdate(channel.datapoints);
-        }
+    for (const channelId in info.channels) {
+      const channelNumber: number = SubDevice.parseChannelString(channelId);
+      if (channelNumber === this.channel) {
+        const channel: ChannelInfo = info.channels[channelId];
+        this.handleChannelUpdate(channel.datapoints);
       }
     }
+  }
 
-    protected handleChannelUpdate(datapoints: {[dp: string]: string}) {
-      this.lastChannelUpdate = datapoints;
+  protected handleChannelUpdate(datapoints: {[dp: string]: string}) {
+    this.lastChannelUpdate = datapoints;
+  }
+
+  public static parseFunctionId(functionId: string): FunctionId | undefined {
+    const functionIdNumber: number = Number.parseInt(functionId, 16);
+    if (functionIdNumber in FunctionId) {
+      return functionIdNumber;
     }
 
-    public static parseFunctionId(functionId: string): FunctionId|undefined {
-      const functionIdNumber: number = Number.parseInt(functionId, 16);
-      if(functionIdNumber in FunctionId) {
-        return functionIdNumber;
-      }
-
-      return undefined;
-    }
+    return undefined;
+  }
 }
