@@ -27,7 +27,7 @@ export class DoorCall extends SubDevice {
   // private readonly sensorDataPointPairingId: PairingId = PairingId.AL_TIMED_START_STOP;
   private readonly sensorValue: string = '1';
 
-  private actuatorChannel?: number;
+  private readonly actuatorChannel?: number;
 
   private readonly actuatorDataPoint: string = 'idp0000';
   // private readonly actuatorDataPointPairingId: PairingId = PairingId.AL_INFO_ON_OFF;

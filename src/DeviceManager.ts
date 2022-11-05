@@ -23,7 +23,7 @@ export class DeviceManager extends EventEmitter {
   private devices: Device[] = [];
   private allDevices: Device[] = [];
 
-  private mqttClient?: MqttClient;
+  private readonly mqttClient?: MqttClient;
 
   constructor(
     private readonly config: ClientConfiguration,
