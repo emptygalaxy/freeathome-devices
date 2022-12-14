@@ -42,7 +42,7 @@
     "eslint-plugin-prettier": "^4.2.1",
     "freeathome-api": "^1.1.0",
     "mqtt": "^4.2.6",
-    "prettier": "^2.7.1",
+    "prettier": "^2.8.0",
     "rimraf": "^3.0.2"
   }
 }
